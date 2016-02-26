@@ -7,16 +7,20 @@ import com.googlecode.lanterna.gui2.*;
  */
 public class MainWindow extends AbstractWindow {
     public MainWindow() {
-        super("NaN POS - Main Window");
-        LinearLayout layout = new LinearLayout(Direction.VERTICAL);
+        super("NAN POS - Main Window");
+        GridLayout layout = new GridLayout(5);
         Panel panel = new Panel();
         panel.setLayoutManager(layout);
-        panel.addComponent(new CoolButton("EXIT", new Runnable() {
-            @Override
-            public void run() {
-                MainWindow.this.close();
-            }
-        }));
+        for (int i = 0; i < 20; i++) {
+            Border border = Borders.singleLine();
+            border.setComponent(new CoolButton("Button " + i, new Runnable() {
+                @Override
+                public void run() {
+                    MainWindow.this.close();
+                }
+            }));
+            panel.addComponent(border);
+        }
         setComponent(panel);
     }
 }

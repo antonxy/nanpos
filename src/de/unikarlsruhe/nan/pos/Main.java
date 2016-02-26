@@ -16,6 +16,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
         Terminal terminal = new DefaultTerminalFactory().createTerminal();
+        System.err.println(terminal.getClass().getName());
         if (terminal instanceof ExtendedTerminal) {
             ((ExtendedTerminal) terminal).setMouseCaptureMode(MouseCaptureMode.CLICK_RELEASE);
         } else {
@@ -32,6 +33,10 @@ public class Main {
         gui.setActiveWindow(window);
 
         gui.waitForWindowToClose(window);
+
+        if (terminal instanceof UnixGpmTerminal) {
+            ((UnixGpmTerminal) terminal).stopGpm();
+        }
 
 //        screen.stopScreen();
     }

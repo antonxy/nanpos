@@ -22,6 +22,7 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.terminal.ansi.CygwinTerminal;
 import com.googlecode.lanterna.terminal.ansi.UnixTerminal;
 import com.googlecode.lanterna.terminal.swing.*;
+import de.unikarlsruhe.nan.pos.UnixGpmTerminal;
 
 import java.awt.*;
 import java.io.IOException;
@@ -95,7 +96,11 @@ public final class DefaultTerminalFactory implements TerminalFactory {
                 return createCygwinTerminal(outputStream, inputStream, charset);
             }
             else {
-                return createUnixTerminal(outputStream, inputStream, charset);
+                if (System.getenv("TERM").toLowerCase().equals("linux")) {
+                    return createUnixGpmTerminal(outputStream, inputStream, charset);
+                } else {
+                    return createUnixTerminal(outputStream, inputStream, charset);
+                }
             }
         }
         else {
@@ -265,6 +270,14 @@ public final class DefaultTerminalFactory implements TerminalFactory {
 
     private Terminal createUnixTerminal(OutputStream outputStream, InputStream inputStream, Charset charset) throws IOException {
         UnixTerminal unixTerminal = new UnixTerminal(inputStream, outputStream, charset);
+        if(mouseCaptureMode != null) {
+            unixTerminal.setMouseCaptureMode(mouseCaptureMode);
+        }
+        return unixTerminal;
+    }
+
+    private Terminal createUnixGpmTerminal(OutputStream outputStream, InputStream inputStream, Charset charset) throws IOException {
+        UnixGpmTerminal unixTerminal = new UnixGpmTerminal(inputStream, outputStream, charset);
         if(mouseCaptureMode != null) {
             unixTerminal.setMouseCaptureMode(mouseCaptureMode);
         }

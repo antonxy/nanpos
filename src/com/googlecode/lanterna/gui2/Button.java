@@ -212,7 +212,7 @@ public class Button extends AbstractInteractableComponent<Button> {
         }
     }
 
-    private static ThemeDefinition getThemeDefinition(TextGUIGraphics graphics) {
+    protected static ThemeDefinition getThemeDefinition(TextGUIGraphics graphics) {
         return graphics.getThemeDefinition(Button.class);
     }
 }
