@@ -1,11 +1,11 @@
 package de.unikarlsruhe.nan.pos;
 
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.googlecode.lanterna.terminal.ExtendedTerminal;
+import com.googlecode.lanterna.terminal.MouseCaptureMode;
 import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
@@ -16,18 +16,23 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
         Terminal terminal = new DefaultTerminalFactory().createTerminal();
+        if (terminal instanceof ExtendedTerminal) {
+            ((ExtendedTerminal) terminal).setMouseCaptureMode(MouseCaptureMode.CLICK_RELEASE);
+        } else {
+            System.exit(99);
+//            throw new RuntimeException("Terminal does not support mouse input");
+        }
         Screen screen = new TerminalScreen(terminal);
-
-        TextGraphics tGraphics = screen.newTextGraphics();
-
         screen.startScreen();
-        screen.clear();
+        MultiWindowTextGUI gui = new MultiWindowTextGUI(screen);
 
-        tGraphics.drawRectangle(
-                new TerminalPosition(3,3), new TerminalSize(10,10), '*');
-        screen.refresh();
+        MainWindow window = new MainWindow();
 
-        screen.readInput();
-        screen.stopScreen();
+        gui.addWindow(window);
+        gui.setActiveWindow(window);
+
+        gui.waitForWindowToClose(window);
+
+//        screen.stopScreen();
     }
 }
