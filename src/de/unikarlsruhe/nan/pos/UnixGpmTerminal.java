@@ -1,67 +1,81 @@
 package de.unikarlsruhe.nan.pos;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import nl.marcelweb.gpm.GPM;
+import nl.marcelweb.gpm.GPMEventListener;
+import nl.marcelweb.gpm.GPMException;
+
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.MouseAction;
 import com.googlecode.lanterna.input.MouseActionType;
 import com.googlecode.lanterna.terminal.ansi.UnixTerminal;
-import com.googlecode.lanterna.terminal.ansi.UnixTerminalSizeQuerier;
-import nl.marcelweb.gpm.GPM;
-import nl.marcelweb.gpm.GPMEventListener;
-import nl.marcelweb.gpm.GPMException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
 
 /**
  * @author Anton Schirg
  */
 public class UnixGpmTerminal extends UnixTerminal {
-    KeyStroke lastKeyEvent = null;
-    private final GPM instance;
+	LinkedBlockingQueue<KeyStroke> lastKeyEvent = new LinkedBlockingQueue<KeyStroke>(
+			10);
+	private final GPM instance;
 
-    public UnixGpmTerminal(InputStream terminalInput, OutputStream terminalOutput, Charset terminalCharset) throws IOException {
-        super(terminalInput, terminalOutput, terminalCharset);
-        instance = GPM.INSTANCE;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    GPM.listen(new GPMEventListener() {
-                        @Override
-                        public void eventReceived(char x, char y, byte buttons, byte mod, byte type) {
-                            synchronized (UnixGpmTerminal.this) {
-                                if (type == 20) {
-                                    lastKeyEvent = new MouseAction(MouseActionType.CLICK_DOWN, 1, new TerminalPosition(x, y));
-                                } else if (type == 24) {
-                                    lastKeyEvent = new MouseAction(MouseActionType.CLICK_RELEASE, 1, new TerminalPosition(x, y));
-                                }
-                            }
-                        }
-                    });
-                } catch (GPMException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
+	public UnixGpmTerminal(InputStream terminalInput,
+			OutputStream terminalOutput, Charset terminalCharset)
+			throws IOException {
+		super(terminalInput, terminalOutput, terminalCharset);
+		instance = GPM.INSTANCE;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(1500);
+					GPM.listen(new GPMEventListener() {
+						@Override
+						public void eventReceived(char x, char y, byte buttons,
+								byte mod, byte type) {
+							synchronized (UnixGpmTerminal.this) {
+								try {
+									if (type == 20) {
+										lastKeyEvent.put(new MouseAction(
+												MouseActionType.CLICK_DOWN, 1,
+												new TerminalPosition(x, y)));
+									} else if (type == 24) {
+										lastKeyEvent.put(new MouseAction(
+												MouseActionType.CLICK_RELEASE,
+												1, new TerminalPosition(x, y)));
+									}
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					});
+				} catch (GPMException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}).start();
+	}
 
-    @Override
-    public KeyStroke pollInput() throws IOException {
-        synchronized (this) {
-            if (lastKeyEvent != null) {
-                KeyStroke event = lastKeyEvent;
-                lastKeyEvent = null;
-                return event;
-            }
-        }
+	@Override
+	public KeyStroke pollInput() throws IOException {
+		synchronized (this) {
+			if (!lastKeyEvent.isEmpty()) {
+				return lastKeyEvent.poll();
+			}
+		}
 
-        return super.pollInput();
-    }
+		return super.pollInput();
+	}
 
-    public void stopGpm() {
-        GPM.stop();
-    }
+	public void stopGpm() {
+		GPM.stop();
+	}
 }
