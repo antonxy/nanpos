@@ -16,7 +16,7 @@ public abstract class Container extends Component {
     public abstract List<Component> getChildren();
 
     @Override
-    public void onClick(TerminalPosition position) {
+    protected void onClick(TerminalPosition position) {
         for (Component child : getChildren()) {
             if (child.getPosition().isInside(position)) {
                 child.onClick(position);
