@@ -233,6 +233,11 @@ public class IOSafeTerminalAdapter implements IOSafeTerminal {
     }
 
     @Override
+    public void addClickListener(ClickListener listener) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public TerminalSize getTerminalSize() {
         try {
             return backend.getTerminalSize();

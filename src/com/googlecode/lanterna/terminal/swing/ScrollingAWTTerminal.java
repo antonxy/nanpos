@@ -21,6 +21,7 @@ package com.googlecode.lanterna.terminal.swing;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.terminal.ClickListener;
 import com.googlecode.lanterna.terminal.IOSafeTerminal;
 import com.googlecode.lanterna.terminal.ResizeListener;
 import com.googlecode.lanterna.TerminalSize;
@@ -213,5 +214,10 @@ public class ScrollingAWTTerminal extends Container implements IOSafeTerminal {
     @Override
     public void removeResizeListener(ResizeListener listener) {
         awtTerminal.removeResizeListener(listener);
+    }
+
+    @Override
+    public void addClickListener(ClickListener listener) {
+
     }
 }

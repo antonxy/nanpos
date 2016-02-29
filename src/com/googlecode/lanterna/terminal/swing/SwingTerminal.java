@@ -6,6 +6,7 @@ import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.*;
 import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.terminal.ClickListener;
 import com.googlecode.lanterna.terminal.IOSafeTerminal;
 import com.googlecode.lanterna.terminal.ResizeListener;
 
@@ -261,5 +262,10 @@ public class SwingTerminal extends JComponent implements IOSafeTerminal {
     @Override
     public void removeResizeListener(ResizeListener listener) {
         terminalImplementation.removeResizeListener(listener);
+    }
+
+    @Override
+    public void addClickListener(ClickListener listener) {
+
     }
 }

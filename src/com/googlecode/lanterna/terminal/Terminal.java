@@ -206,6 +206,8 @@ public interface Terminal extends InputProvider {
      */
     void removeResizeListener(ResizeListener listener);
 
+    void addClickListener(ClickListener listener);
+
     /**
      * Returns the size of the terminal, expressed as a {@code TerminalSize} object. Please bear in mind that depending
      * on the {@code Terminal} implementation, this may or may not be accurate. See the implementing classes for more

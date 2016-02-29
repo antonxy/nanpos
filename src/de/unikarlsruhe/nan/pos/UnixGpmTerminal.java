@@ -20,8 +20,6 @@ import com.googlecode.lanterna.terminal.ansi.UnixTerminal;
  * @author Anton Schirg
  */
 public class UnixGpmTerminal extends UnixTerminal {
-	LinkedBlockingQueue<KeyStroke> lastKeyEvent = new LinkedBlockingQueue<KeyStroke>(
-			10);
 	private final GPM instance;
 
 	public UnixGpmTerminal(InputStream terminalInput,
@@ -38,41 +36,16 @@ public class UnixGpmTerminal extends UnixTerminal {
 						@Override
 						public void eventReceived(char x, char y, byte buttons,
 								byte mod, byte type) {
-							synchronized (UnixGpmTerminal.this) {
-								try {
-									if (type == 20) {
-										lastKeyEvent.put(new MouseAction(
-												MouseActionType.CLICK_DOWN, 1,
-												new TerminalPosition(x, y)));
-									} else if (type == 24) {
-										lastKeyEvent.put(new MouseAction(
-												MouseActionType.CLICK_RELEASE,
-												1, new TerminalPosition(x, y)));
-									}
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
+							if (type == 20) {
+								sendClick(new TerminalPosition(x, y));
 							}
 						}
 					});
-				} catch (GPMException e) {
+				} catch (GPMException | InterruptedException e) {
 					e.printStackTrace();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
 				}
 			}
 		}).start();
-	}
-
-	@Override
-	public KeyStroke pollInput() throws IOException {
-		synchronized (this) {
-			if (!lastKeyEvent.isEmpty()) {
-				return lastKeyEvent.poll();
-			}
-		}
-
-		return super.pollInput();
 	}
 
 	public void stopGpm() {

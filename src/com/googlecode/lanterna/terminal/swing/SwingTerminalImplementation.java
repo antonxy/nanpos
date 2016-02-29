@@ -2,6 +2,7 @@ package com.googlecode.lanterna.terminal.swing;
 
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextCharacter;
+import com.googlecode.lanterna.terminal.ClickListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -134,5 +135,10 @@ class SwingTerminalImplementation extends GraphicalTerminalImplementation {
             throw new UnsupportedOperationException("Cannot call SwingTerminal.readInput() on the AWT thread");
         }
         return super.readInput();
+    }
+
+    @Override
+    public void addClickListener(ClickListener listener) {
+
     }
 }

@@ -19,9 +19,11 @@
 package com.googlecode.lanterna.terminal.ansi;
 
 import com.googlecode.lanterna.SGR;
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.input.*;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.terminal.ClickListener;
 import com.googlecode.lanterna.terminal.ExtendedTerminal;
 import com.googlecode.lanterna.terminal.MouseCaptureMode;
 
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.LinkedList;
 
 /**
  * Class containing graphics code for ANSI compliant text terminals and terminal emulators. All the methods inside of
@@ -41,6 +44,7 @@ public abstract class ANSITerminal extends StreamBasedTerminal implements Extend
 
     private MouseCaptureMode mouseCaptureMode;
     private boolean inPrivateMode;
+    private LinkedList<ClickListener> clickListeners = new LinkedList<>();
 
     @SuppressWarnings("WeakerAccess")
     protected ANSITerminal(InputStream terminalInput, OutputStream terminalOutput, Charset terminalCharset) {
@@ -333,6 +337,17 @@ public abstract class ANSITerminal extends StreamBasedTerminal implements Extend
             if(getCharset().equals(Charset.forName("UTF-8"))) {
                 writeCSISequenceToTerminal((byte)'?', (byte)'1', (byte)'0', (byte)'0', (byte)'5', (byte)'h');
             }
+        }
+    }
+
+    @Override
+    public void addClickListener(ClickListener listener) {
+        clickListeners.add(listener);
+    }
+
+    protected void sendClick(TerminalPosition position) {
+        for (ClickListener clickListener : clickListeners) {
+            clickListener.clicked(position);
         }
     }
 
