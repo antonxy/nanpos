@@ -32,7 +32,7 @@ public class TUI extends Container implements ClickListener {
         return children;
     }
 
-    void layout() {
+    public void layout() {
         layout(new TerminalRectangle(TerminalPosition.TOP_LEFT_CORNER, screen.getTerminalSize()));
     }
 
@@ -42,7 +42,7 @@ public class TUI extends Container implements ClickListener {
     }
 
     @Override
-    void redraw() {
+    public void redraw() {
         window.redraw();
     }
 

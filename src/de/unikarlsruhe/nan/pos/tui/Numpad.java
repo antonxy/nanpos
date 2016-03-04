@@ -89,6 +89,11 @@ public class Numpad extends Component {
         }
     }
 
+    public void clear() {
+        enteredText = "";
+        updateLabel();
+    }
+
     @Override
     protected void onClick(TerminalPosition position) {
         verticalLayout.onClick(position);
