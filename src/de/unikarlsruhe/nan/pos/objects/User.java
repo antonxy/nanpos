@@ -20,9 +20,11 @@ public class User {
 		messageDigest.update(pin.getBytes());
 		prep.setString(1, byteArrayToHexString(messageDigest.digest()));
 		try (ResultSet res = prep.executeQuery()) {
-			res.first();
-			return new User(res);
+			if (res.first()) {
+				return new User(res);
+			}
 		}
+		return null;
 
 	}
 
