@@ -44,9 +44,9 @@ public class Main {
 
         CenterLayout loginLayout = new CenterLayout();
 
-        Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
+        final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
             @Override
-            public void handle(String result) {
+            public void handle(String result, Numpad caller) {
                 User userByPIN;
                 try {
                     userByPIN = User.getUserByPIN(result);
@@ -57,6 +57,8 @@ public class Main {
                 if (userByPIN != null) {
                     System.err.println("Logged in");
                     System.exit(123);
+                } else {
+                    caller.clear();
                 }
             }
         }, true);

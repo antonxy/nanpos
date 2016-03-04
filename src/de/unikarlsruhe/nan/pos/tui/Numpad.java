@@ -55,7 +55,7 @@ public class Numpad extends Component {
         gridLayout.addChild(new Button("OK", new Runnable() {
             @Override
             public void run() {
-                resultHandler.handle(enteredText);
+                resultHandler.handle(enteredText, Numpad.this);
             }
         }));
     }
@@ -100,6 +100,6 @@ public class Numpad extends Component {
     }
 
     public interface NumpadResultHandler {
-        public void handle(String result);
+        public void handle(String result, Numpad caller);
     }
 }
