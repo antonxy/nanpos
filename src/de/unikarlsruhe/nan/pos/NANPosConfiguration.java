@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -15,7 +16,7 @@ public class NANPosConfiguration {
 	protected NANPosConfiguration(InputStream in) throws IOException,
 			SQLException {
 		this.p = new Properties();
-		p.load(in);
+		p.load(new InputStreamReader(in, "UTF-8"));
 		instance = this;
 	}
 
