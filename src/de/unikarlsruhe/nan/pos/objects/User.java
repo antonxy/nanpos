@@ -20,7 +20,7 @@ public class User {
 		messageDigest.update(pin.getBytes());
 		prep.setString(1, byteArrayToHexString(messageDigest.digest()));
 		try (ResultSet res = prep.executeQuery()) {
-			if (res.first()) {
+			if (res.next()) {
 				return new User(res);
 			}
 		}
@@ -31,10 +31,10 @@ public class User {
 	public User(ResultSet resSet) throws SQLException {
 		this.id = resSet.getInt("id");
 		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
-				"SELECT sum(amount) as sum FROM revenues WHERE user=?");
-		prep.setInt(2, id);
+				"SELECT sum(amount) as sum FROM revenues WHERE \"user\"=?");
+		prep.setInt(1, id);
 		try (ResultSet res = prep.executeQuery()) {
-			res.first();
+			res.next();
 			this.balance = res.getInt("sum");
 		}
 	}
