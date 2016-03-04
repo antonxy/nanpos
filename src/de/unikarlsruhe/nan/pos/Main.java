@@ -14,10 +14,7 @@ import com.googlecode.lanterna.terminal.ResizeListener;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import de.unikarlsruhe.nan.pos.objects.User;
-import de.unikarlsruhe.nan.pos.tui.BuyWindow;
-import de.unikarlsruhe.nan.pos.tui.CenterLayout;
-import de.unikarlsruhe.nan.pos.tui.Numpad;
-import de.unikarlsruhe.nan.pos.tui.TUI;
+import de.unikarlsruhe.nan.pos.tui.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,11 +40,12 @@ public class Main {
 
         terminal.addClickListener(tui);
 
-        CenterLayout loginLayout = new CenterLayout();
+        final CenterLayout loginLayout = new CenterLayout();
 
         final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
             @Override
             public void handle(String result, Numpad caller) {
+                caller.clear();
                 User userByPIN;
                 try {
                     userByPIN = User.getUserByPIN(result);
@@ -56,14 +54,26 @@ public class Main {
                     return;
                 }
                 if (userByPIN != null) {
-                    tui.addChild(new BuyWindow(userByPIN));
-                } else {
-                    caller.clear();
+                    BuyWindow buyWindow = new BuyWindow(userByPIN);
+                    buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
+                        @Override
+                        public void handle(String result) {
+                            ResultScreen resultScreen = new ResultScreen(result);
+                            resultScreen.setDoneCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tui.setWindow(loginLayout);
+                                }
+                            });
+                            tui.setWindow(resultScreen);
+                        }
+                    });
+                    tui.setWindow(buyWindow);
                 }
             }
         }, true);
         loginLayout.addChild(numpad);
-        tui.addChild(loginLayout);
+        tui.setWindow(loginLayout);
 
         terminal.addResizeListener(new ResizeListener() {
             @Override

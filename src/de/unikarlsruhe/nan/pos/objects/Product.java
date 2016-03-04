@@ -10,7 +10,7 @@ import de.unikarlsruhe.nan.pos.DatabaseConnection;
 
 public class Product {
 	private String name;
-	private double price;
+	private int price;
 	private int id, ean;
 
 	public static List<Product> getAllProducts() throws SQLException {
@@ -37,7 +37,7 @@ public class Product {
 
 	public Product(ResultSet resSet) throws SQLException {
 		this.name = resSet.getString("name");
-		this.price = resSet.getDouble("price");
+		this.price = resSet.getInt("price");
 		this.id = resSet.getInt("id");
 		this.ean = resSet.getInt("ean");
 	}
@@ -46,7 +46,7 @@ public class Product {
 		return name;
 	}
 
-	public double getPrice() {
+	public int getPrice() {
 		return price;
 	}
 

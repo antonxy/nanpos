@@ -6,10 +6,7 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.ClickListener;
 
-import java.util.LinkedList;
-import java.util.List;
-
-public class TUI extends Container implements ClickListener {
+public class TUI extends Component implements ClickListener {
     private Screen screen;
     private Component window;
 
@@ -17,19 +14,11 @@ public class TUI extends Container implements ClickListener {
         this.screen = screen;
     }
 
-    @Override
-    public void addChild(Component child) {
-        super.addChild(child);
+    public void setWindow(Component child) {
+        child.setParent(this);
         window = child;
         layout();
         redraw();
-    }
-
-    @Override
-    public List<Component> getChildren() {
-        LinkedList<Component> children = new LinkedList<>();
-        children.add(window);
-        return children;
     }
 
     public void layout() {
@@ -54,6 +43,11 @@ public class TUI extends Container implements ClickListener {
     @Override
     protected Screen getScreen() {
         return screen;
+    }
+
+    @Override
+    protected void onClick(TerminalPosition position) {
+        window.onClick(position);
     }
 
     @Override

@@ -16,14 +16,15 @@ public class BuyWindow extends Component {
     private User user;
     private final VerticalLayout verticalLayout;
     private final Label balanceLabel;
-    private Runnable resultCallback;
+    private BuyWindowResultHandler resultCallback;
 
     public BuyWindow(final User user) {
         this.user = user;
         verticalLayout = new VerticalLayout();
         verticalLayout.setParent(this);
 
-        balanceLabel = new Label("Balance: " + user.getBalance());
+        double balance = ((double) user.getBalance()) / 100;
+        balanceLabel = new Label("Balance: " + balance);
         verticalLayout.addChild(balanceLabel);
         GridLayout gridLayout = new GridLayout(4);
         verticalLayout.addChild(gridLayout);
@@ -45,8 +46,8 @@ public class BuyWindow extends Component {
 
     private void clickedProduct(Product product) {
         try {
-            user.buy(product);
-            resultCallback.run();
+            boolean success = user.buy(product);
+            resultCallback.handle(success ? "Big success - you have bought the product" : "Fatal error - could not buy the product");
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -54,7 +55,7 @@ public class BuyWindow extends Component {
         }
     }
 
-    private void setResultCallback(Runnable resultCallback) {
+    public void setResultCallback(BuyWindowResultHandler resultCallback) {
         this.resultCallback = resultCallback;
     }
 
@@ -76,5 +77,9 @@ public class BuyWindow extends Component {
     @Override
     protected void onClick(TerminalPosition position) {
         verticalLayout.onClick(position);
+    }
+
+    public interface BuyWindowResultHandler {
+        public void handle(String result);
     }
 }

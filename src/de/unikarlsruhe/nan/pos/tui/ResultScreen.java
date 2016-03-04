@@ -10,12 +10,24 @@ import com.googlecode.lanterna.TerminalSize;
 public class ResultScreen extends Component {
 
     private final CenterLayout centerLayout;
+    private Runnable callback;
 
     public ResultScreen(String result) {
         centerLayout = new CenterLayout();
         centerLayout.setParent(this);
-        Button label = new Button(result);
+        Button label = new Button(result, new Runnable() {
+            @Override
+            public void run() {
+                if (callback != null) {
+                    callback.run();
+                }
+            }
+        });
         centerLayout.addChild(label);
+    }
+
+    public void setDoneCallback(Runnable callback) {
+        this.callback = callback;
     }
 
     @Override

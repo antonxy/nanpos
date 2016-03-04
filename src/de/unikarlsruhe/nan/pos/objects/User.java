@@ -10,7 +10,7 @@ import de.unikarlsruhe.nan.pos.DatabaseConnection;
 
 public class User {
 	private int id;
-	private double balance;
+	private int balance;
 
 	public static User getUserByPIN(String pin) throws SQLException,
 			NoSuchAlgorithmException {
@@ -39,7 +39,7 @@ public class User {
 		}
 	}
 
-	public double getBalance() {
+	public int getBalance() {
 		return balance;
 	}
 
@@ -48,13 +48,13 @@ public class User {
 	}
 
 	public synchronized boolean buy(Product p) throws SQLException {
-		if (balance + 4 >= p.getPrice()) {
+		if (balance + 400 >= p.getPrice()) {
 			PreparedStatement prep = DatabaseConnection
 					.getInstance()
 					.prepare(
 							"INSERT INTO revenues (\"user\", amount, product) VALUES(?, ?, ?)");
 			prep.setInt(1, id);
-			prep.setDouble(2, p.getPrice());
+			prep.setInt(2, -1 * p.getPrice());
 			prep.setInt(3, p.getId());
 			prep.execute();
 			return true;
