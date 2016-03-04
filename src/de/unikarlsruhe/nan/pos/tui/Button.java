@@ -47,6 +47,6 @@ public class Button extends Component {
 
     @Override
     TerminalSize getPreferredSize() {
-        return new TerminalSize(text.length() + 7, 5);
+        return new TerminalSize(text.length() + 13, 7);
     }
 }

@@ -49,7 +49,7 @@ public class Main {
                 System.err.println("EXIT");
                 System.exit(123);
             }
-        });
+        }, true);
         centerLayout.addChild(numpad);
         tui.addChild(centerLayout);
 
