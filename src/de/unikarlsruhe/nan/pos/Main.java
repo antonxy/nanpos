@@ -14,6 +14,7 @@ import com.googlecode.lanterna.terminal.ResizeListener;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import de.unikarlsruhe.nan.pos.objects.User;
+import de.unikarlsruhe.nan.pos.tui.BuyWindow;
 import de.unikarlsruhe.nan.pos.tui.CenterLayout;
 import de.unikarlsruhe.nan.pos.tui.Numpad;
 import de.unikarlsruhe.nan.pos.tui.TUI;
@@ -55,8 +56,7 @@ public class Main {
                     return;
                 }
                 if (userByPIN != null) {
-                    System.err.println("Logged in");
-                    System.exit(123);
+                    tui.addChild(new BuyWindow(userByPIN));
                 } else {
                     caller.clear();
                 }
