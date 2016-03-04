@@ -6,10 +6,16 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class PS2BarcodeScanner {
+	private PS2BarcodeScanner instance = new PS2BarcodeScanner(
+			NANPosConfiguration.getInstance().barcodeScannerSource());
 	private File source;
-	private BarcodeListener listener;
+	private BarcodeListener listener = null;
 
-	public PS2BarcodeScanner(String sourceDevice) throws IOException {
+	private PS2BarcodeScanner(String sourceDevice) throws IOException {
+		if (sourceDevice == null) {
+			System.err.println("No barcode scanner configured.");
+			return;
+		}
 		source = new File(sourceDevice);
 		run();
 	}
@@ -45,5 +51,9 @@ public class PS2BarcodeScanner {
 
 	public static interface BarcodeListener {
 		public void barcodeScanned(int barCode);
+	}
+
+	public PS2BarcodeScanner getInstance() {
+		return instance;
 	}
 }

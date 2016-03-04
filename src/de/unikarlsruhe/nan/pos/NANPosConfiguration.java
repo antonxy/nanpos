@@ -35,8 +35,8 @@ public class NANPosConfiguration {
 		return p.getProperty("pos.db.driver");
 	}
 
-	public boolean barcodeScanner() {
-		return Boolean.parseBoolean(p.getProperty("pos.barcodescanner"));
+	public String barcodeScannerSource() {
+		return p.getProperty("pos.barcodescanner.source");
 	}
 
 	public static NANPosConfiguration getInstance() {
