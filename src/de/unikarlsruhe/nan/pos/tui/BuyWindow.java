@@ -3,6 +3,7 @@ package de.unikarlsruhe.nan.pos.tui;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
+import de.unikarlsruhe.nan.pos.PS2BarcodeScanner;
 import de.unikarlsruhe.nan.pos.objects.Product;
 import de.unikarlsruhe.nan.pos.objects.User;
 
@@ -42,9 +43,24 @@ public class BuyWindow extends Component {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        PS2BarcodeScanner.getInstance().setBarcodeListener(new PS2BarcodeScanner.BarcodeListener() {
+            @Override
+            public void barcodeScanned(int barCode) {
+                try {
+                    Product byEAN = Product.getByEAN(barCode);
+                    if (byEAN != null) {
+                        clickedProduct(byEAN);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void clickedProduct(Product product) {
+        PS2BarcodeScanner.getInstance().removeBarcodeListener();
         try {
             boolean success = user.buy(product);
             resultCallback.handle(success ? "Big success - you have bought the product" : "Fatal error - could not buy the product");

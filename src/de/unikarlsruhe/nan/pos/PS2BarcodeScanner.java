@@ -6,10 +6,17 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class PS2BarcodeScanner {
-	private PS2BarcodeScanner instance = new PS2BarcodeScanner(
-			NANPosConfiguration.getInstance().barcodeScannerSource());
+	private static PS2BarcodeScanner instance = null;
 	private File source;
 	private BarcodeListener listener = null;
+
+	public static void init(NANPosConfiguration configuration) {
+		try {
+			instance = new PS2BarcodeScanner(configuration.barcodeScannerSource());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private PS2BarcodeScanner(String sourceDevice) throws IOException {
 		if (sourceDevice == null) {
@@ -49,11 +56,15 @@ public class PS2BarcodeScanner {
 		this.listener = list;
 	}
 
+	public synchronized void removeBarcodeListener() {
+		this.listener = null;
+	}
+
 	public static interface BarcodeListener {
 		public void barcodeScanned(int barCode);
 	}
 
-	public PS2BarcodeScanner getInstance() {
+	static public PS2BarcodeScanner getInstance() {
 		return instance;
 	}
 }

@@ -30,6 +30,8 @@ public class Main {
         NANPosConfiguration nanConf = new NANPosConfiguration(
                 new FileInputStream("conf/nanpos.properties"));
         DatabaseConnection.init(nanConf);
+        PS2BarcodeScanner.init(nanConf);
+
         final Terminal terminal = new DefaultTerminalFactory().createTerminal();
 
         final Screen screen = new TerminalScreen(terminal);
