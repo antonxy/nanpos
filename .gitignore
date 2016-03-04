@@ -15,3 +15,7 @@ hs_err_pid*
 
 *.iml
 /bin/
+/lib/
+.settings/
+.classpath
+.project
