@@ -16,6 +16,13 @@ public abstract class Container extends Component {
     public abstract List<Component> getChildren();
 
     @Override
+    void redraw() {
+        for (Component child : getChildren()) {
+            child.redraw();
+        }
+    }
+
+    @Override
     protected void onClick(TerminalPosition position) {
         for (Component child : getChildren()) {
             if (child.getPosition().isInside(position)) {

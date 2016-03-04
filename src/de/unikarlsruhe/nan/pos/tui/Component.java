@@ -10,7 +10,7 @@ import com.googlecode.lanterna.screen.Screen;
  */
 public abstract class Component {
     protected TerminalRectangle position;
-    protected Container parent;
+    protected Component parent;
 
     protected void layout(TerminalRectangle position) {
         this.position = position;
@@ -23,7 +23,7 @@ public abstract class Component {
         return parent.getScreen();
     }
 
-    protected void setParent(Container parent) {
+    protected void setParent(Component parent) {
         this.parent = parent;
     }
 
