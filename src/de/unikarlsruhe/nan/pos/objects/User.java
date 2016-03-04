@@ -52,7 +52,7 @@ public class User {
 			PreparedStatement prep = DatabaseConnection
 					.getInstance()
 					.prepare(
-							"INSERT INTO revenues ('user', 'amount', 'product') VALUES(?, ?, ?)");
+							"INSERT INTO revenues (\"user\", amount, product) VALUES(?, ?, ?)");
 			prep.setInt(1, id);
 			prep.setDouble(2, p.getPrice());
 			prep.setInt(3, p.getId());
