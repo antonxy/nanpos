@@ -17,7 +17,9 @@ import com.googlecode.lanterna.terminal.Terminal;
  */
 public class Main {
 	public static void main(String[] args) throws IOException, SQLException {
-		new NANPosConfiguration(new FileInputStream("conf/nanpos.properties"));
+		NANPosConfiguration nanConf = new NANPosConfiguration(
+				new FileInputStream("conf/nanpos.properties"));
+		DatabaseConnection.init(nanConf);
 		Terminal terminal = new DefaultTerminalFactory().createTerminal();
 		System.err.println(terminal.getClass().getName());
 		if (terminal instanceof ExtendedTerminal) {
