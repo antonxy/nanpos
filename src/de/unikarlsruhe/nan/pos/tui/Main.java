@@ -88,6 +88,8 @@ public class Main {
         });
         mouseThread.start();
 
+        tui.clicked(new TerminalPosition(40, 12));
+
 //        screen.stopScreen();
     }
 }

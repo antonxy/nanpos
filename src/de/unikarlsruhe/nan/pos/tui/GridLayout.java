@@ -43,7 +43,7 @@ public class GridLayout extends Container {
             int row = i / columns;
             int posY = row * rowHeight;
             int posX = col * colWidth;
-            child.layout(new TerminalRectangle(new TerminalPosition(posX, posY), new TerminalSize(colWidth, rowHeight)));
+            child.layout(new TerminalRectangle(position.getPosition().withRelative(new TerminalPosition(posX, posY)), new TerminalSize(colWidth, rowHeight)));
             i++;
         }
     }
@@ -61,6 +61,6 @@ public class GridLayout extends Container {
                 rowHeight = preferredSize.getRows();
             }
         }
-        return new TerminalSize(columns * colWidth, ((int) Math.ceil(((double) children.size()) / columns)));
+        return new TerminalSize(columns * colWidth, ((int) Math.ceil(((double) children.size()) / columns)) * rowHeight);
     }
 }

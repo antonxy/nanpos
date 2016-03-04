@@ -17,6 +17,7 @@ public abstract class Container extends Component {
 
     @Override
     void redraw() {
+        super.redraw();
         for (Component child : getChildren()) {
             child.redraw();
         }

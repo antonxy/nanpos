@@ -3,6 +3,7 @@ package de.unikarlsruhe.nan.pos.tui;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.screen.Screen;
 
 /**
@@ -16,7 +17,10 @@ public abstract class Component {
         this.position = position;
     }
 
-    abstract void redraw();
+    void redraw() {
+        TextGraphics textGraphics = getScreen().newTextGraphics();
+        textGraphics.fillRectangle(position.getPosition(), position.getSize(), ' ');
+    }
     abstract TerminalSize getPreferredSize();
 
     protected Screen getScreen() {

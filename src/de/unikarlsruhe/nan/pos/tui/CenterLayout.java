@@ -30,11 +30,12 @@ public class CenterLayout extends Container {
     protected void layout(TerminalRectangle position) {
         super.layout(position);
         if (child != null) {
-            TerminalSize preferredSize = child.getPreferredSize();
-            TerminalSize childSize = new TerminalSize(Math.min(preferredSize.getColumns(), position.getSize().getColumns()),
-                    Math.min(preferredSize.getRows(), position.getSize().getRows()));
-            TerminalPosition childPosition = new TerminalPosition((position.getSize().getColumns() - childSize.getColumns()) / 2,
-                    (position.getSize().getRows() - childSize.getRows()) / 2);
+            TerminalSize childPreferredSize = child.getPreferredSize();
+            TerminalSize childSize = new TerminalSize(Math.min(childPreferredSize.getColumns(), position.getSize().getColumns()),
+                    Math.min(childPreferredSize.getRows(), position.getSize().getRows()));
+            TerminalPosition childPosition = position.getPosition().withRelative(new TerminalPosition(
+                    (position.getSize().getColumns() - childSize.getColumns()) / 2,
+                    (position.getSize().getRows() - childSize.getRows()) / 2));
             child.layout(new TerminalRectangle(childPosition, childSize));
         }
     }
