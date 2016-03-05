@@ -22,7 +22,7 @@ import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import de.unikarlsruhe.nan.pos.objects.User;
 import de.unikarlsruhe.nan.pos.tui.BuyWindow;
 import de.unikarlsruhe.nan.pos.tui.CenterLayout;
-import de.unikarlsruhe.nan.pos.tui.Numpad;
+import de.unikarlsruhe.nan.pos.tui.LoginWindow;
 import de.unikarlsruhe.nan.pos.tui.ResultScreen;
 import de.unikarlsruhe.nan.pos.tui.TUI;
 
@@ -49,10 +49,9 @@ public class Main {
 
 		final CenterLayout loginLayout = new CenterLayout();
 
-		final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
+		final LoginWindow loginWindow = new LoginWindow(new LoginWindow.NumpadResultHandler() {
 			@Override
-			public void handle(User user, Numpad caller, String detailMessage) {
-				caller.clear();
+			public void handle(User user, LoginWindow caller, String detailMessage) {
 				if (user != null) {
 					BuyWindow buyWindow = new BuyWindow(user);
 					buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
@@ -82,8 +81,8 @@ public class Main {
 					tui.setWindow(resultScreen);
 				}
 			}
-		}, true);
-		loginLayout.addChild(numpad);
+		});
+		loginLayout.addChild(loginWindow);
 		tui.setWindow(loginLayout);
 
 		terminal.addResizeListener(new ResizeListener() {

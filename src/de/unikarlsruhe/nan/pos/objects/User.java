@@ -47,6 +47,10 @@ public class User {
 		return id;
 	}
 
+	public boolean isAdmin() {
+		return true;
+	}
+
 	public synchronized boolean buy(Product p) throws SQLException {
 		if (balance + 400 >= p.getPrice()) {
 			PreparedStatement prep = DatabaseConnection

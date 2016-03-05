@@ -3,10 +3,6 @@ package de.unikarlsruhe.nan.pos.tui;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
-import de.unikarlsruhe.nan.pos.objects.User;
-
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 
 /**
  * @author Anton Schirg
@@ -23,9 +19,6 @@ public class Numpad extends Component {
         this.secure = secure;
         verticalLayout = new VerticalLayout();
         verticalLayout.setParent(this);
-
-        AsciiArt asciiArt = new AsciiArt();
-        verticalLayout.addChild(asciiArt);
 
         label = new Label("");
         verticalLayout.addChild(label);
@@ -62,17 +55,7 @@ public class Numpad extends Component {
         gridLayout.addChild(new Button("OK", new Runnable() {
             @Override
             public void run() {
-                try {
-                    User userByPIN = User.getUserByPIN(enteredText);
-                    String detailMessage = userByPIN == null ? "Unknown user" : "Success";
-                    resultHandler.handle(userByPIN, Numpad.this, detailMessage);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    resultHandler.handle(null, Numpad.this, "SQL Exception");
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                    resultHandler.handle(null, Numpad.this, "NoSuchAlgorithmException - WAT?");
-                }
+                resultHandler.handle(enteredText, Numpad.this);
             }
         }));
     }
@@ -117,6 +100,6 @@ public class Numpad extends Component {
     }
 
     public interface NumpadResultHandler {
-        public void handle(User user, Numpad caller, String detailMessage);
+        public void handle(String enteredText, Numpad caller);
     }
 }

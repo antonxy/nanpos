@@ -59,6 +59,15 @@ public class BuyWindow extends Component {
             }
         }));
 
+        if (user.isAdmin()) {
+            horizontalLayout.addChild(new Button("Aufladen", new Runnable() {
+                @Override
+                public void run() {
+                    
+                }
+            }));
+        }
+
         PS2BarcodeScanner.getInstance().setBarcodeListener(new PS2BarcodeScanner.BarcodeListener() {
             @Override
             public void barcodeScanned(long barCode) {
