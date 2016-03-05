@@ -49,7 +49,10 @@ public class BuyWindow extends Component {
             e.printStackTrace();
         }
 
-        gridLayout.addChild(new Button("Back", new Runnable() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        verticalLayout.addChild(horizontalLayout);
+
+        horizontalLayout.addChild(new Button("Back", new Runnable() {
             @Override
             public void run() {
                 resultCallback.handle("Exited by user", TextColor.ANSI.BLUE);
