@@ -24,6 +24,9 @@ public class Numpad extends Component {
         verticalLayout = new VerticalLayout();
         verticalLayout.setParent(this);
 
+        AsciiArt asciiArt = new AsciiArt();
+        verticalLayout.addChild(asciiArt);
+
         label = new Label("");
         verticalLayout.addChild(label);
 
@@ -61,7 +64,7 @@ public class Numpad extends Component {
             public void run() {
                 try {
                     User userByPIN = User.getUserByPIN(enteredText);
-                    String detailMessage = userByPIN == null ? "Unknown user\nTest" : "Success";
+                    String detailMessage = userByPIN == null ? "Unknown user" : "Success";
                     resultHandler.handle(userByPIN, Numpad.this, detailMessage);
                 } catch (SQLException e) {
                     e.printStackTrace();
