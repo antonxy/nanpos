@@ -28,7 +28,7 @@ public class VerticalLayout extends Container {
         for (Component child : children) {
             TerminalSize childPreferredSize = child.getPreferredSize();
             child.layout(new TerminalRectangle(position.getPosition().withRelative(new TerminalPosition(0, rowOffset)), new TerminalSize(colWidth, childPreferredSize.getRows())));
-            rowOffset += childPreferredSize.getRows();
+            rowOffset += childPreferredSize.getRows() + 1;
         }
     }
 
@@ -46,7 +46,7 @@ public class VerticalLayout extends Container {
             if (preferredSize.getColumns() > cols) {
                 cols = preferredSize.getColumns();
             }
-            rows += preferredSize.getRows();
+            rows += preferredSize.getRows() + 1;
         }
         return new TerminalSize(cols, rows);
     }

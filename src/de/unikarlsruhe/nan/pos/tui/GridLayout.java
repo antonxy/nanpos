@@ -41,8 +41,8 @@ public class GridLayout extends Container {
         for (Component child : children) {
             int col = i % columns;
             int row = i / columns;
-            int posY = row * rowHeight;
-            int posX = col * colWidth;
+            int posY = row * rowHeight + row;
+            int posX = col * colWidth + col * 2;
             child.layout(new TerminalRectangle(position.getPosition().withRelative(new TerminalPosition(posX, posY)), new TerminalSize(colWidth, rowHeight)));
             i++;
         }
@@ -61,6 +61,7 @@ public class GridLayout extends Container {
                 rowHeight = preferredSize.getRows();
             }
         }
-        return new TerminalSize(columns * colWidth, ((int) Math.ceil(((double) children.size()) / columns)) * rowHeight);
+        int rows = children.size();
+        return new TerminalSize(columns * colWidth + columns, ((int) Math.ceil(((double) rows) / columns)) * rowHeight + rows);
     }
 }

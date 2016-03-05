@@ -23,7 +23,7 @@ public class TerminalRectangle {
     public boolean isInside(TerminalPosition position) {
         return position.getRow() >= getPosition().getRow() &&
                 position.getColumn() >= getPosition().getColumn() &&
-                position.getRow() < getPosition().getRow() + getSize().getRows() &&
-                position.getColumn() < getPosition().getColumn() + getSize().getColumns();
+                position.getRow() <= getPosition().getRow() + getSize().getRows() &&
+                position.getColumn() <= getPosition().getColumn() + getSize().getColumns();
     }
 }
