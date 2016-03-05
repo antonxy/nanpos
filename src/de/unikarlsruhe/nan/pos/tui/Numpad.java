@@ -61,7 +61,7 @@ public class Numpad extends Component {
             public void run() {
                 try {
                     User userByPIN = User.getUserByPIN(enteredText);
-                    String detailMessage = userByPIN == null ? "Unknown user" : "Success";
+                    String detailMessage = userByPIN == null ? "Unknown user\nTest" : "Success";
                     resultHandler.handle(userByPIN, Numpad.this, detailMessage);
                 } catch (SQLException e) {
                     e.printStackTrace();

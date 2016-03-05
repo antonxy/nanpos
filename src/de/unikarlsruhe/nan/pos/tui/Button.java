@@ -33,12 +33,16 @@ public class Button extends Component {
 		super.redraw();
 		TextGraphics graphics = getScreen().newTextGraphics();
 		GraphicsUtils.drawFancyBoxSingle(graphics, position);
-		graphics.putString(
-				position.getPosition()
-						.withRelative(
-								position.getSize().getColumns() / 2
-										- text.length() / 2,
-								position.getSize().getRows() / 2), text);
+        String[] split = text.split("\n");
+        for (int i = 0; i < split.length; i++) {
+            String currentText = split[i].trim();
+            graphics.putString(
+                    position.getPosition()
+                            .withRelative(
+                                    position.getSize().getColumns() / 2
+                                            - currentText.length() / 2,
+                                    (position.getSize().getRows() - split.length + 1) / 2 + i), currentText);
+        }
 		try {
 			getScreen().refresh();
 		} catch (IOException e) {
@@ -53,6 +57,11 @@ public class Button extends Component {
 
 	@Override
 	TerminalSize getPreferredSize() {
-		return new TerminalSize(text.length() + 10, 6);
+        String[] split = text.split("\n");
+        int maxlen = 0;
+        for (String s : split) {
+            maxlen = Math.max(maxlen, s.trim().length());
+        }
+        return new TerminalSize(maxlen + 10, split.length + 5);
 	}
 }

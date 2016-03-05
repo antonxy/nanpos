@@ -9,7 +9,9 @@ import de.unikarlsruhe.nan.pos.objects.Product;
 import de.unikarlsruhe.nan.pos.objects.User;
 
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Anton Schirg
@@ -28,8 +30,7 @@ public class BuyWindow extends Component {
         verticalLayout = new VerticalLayout();
         centerLayout.addChild(verticalLayout);
 
-        final double balance = ((double) user.getBalance()) / 100;
-        balanceLabel = new Label("Balance: " + balance);
+        balanceLabel = new Label("Balance: " + formatPrice(user.getBalance()));
         verticalLayout.addChild(balanceLabel);
         GridLayout gridLayout = new GridLayout(4);
         verticalLayout.addChild(gridLayout);
@@ -37,7 +38,7 @@ public class BuyWindow extends Component {
         try {
             List<Product> allProducts = Product.getAllProducts();
             for (final Product product : allProducts) {
-                gridLayout.addChild(new Button(product.getName(), new Runnable() {
+                gridLayout.addChild(new Button(product.getName() + "\n" + formatPrice(product.getPrice()), new Runnable() {
                     @Override
                     public void run() {
                         clickedProduct(product);
@@ -71,6 +72,12 @@ public class BuyWindow extends Component {
                 }
             }
         });
+    }
+
+    private String formatPrice(int cents) {
+        double euros = ((double) cents) / 100;
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
+        return formatter.format(euros);
     }
 
     private void clickedProduct(Product product) {
