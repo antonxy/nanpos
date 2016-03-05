@@ -17,7 +17,7 @@ public class Product {
 	public static List<Product> getAllProducts() throws SQLException {
 		LinkedList<Product> res = new LinkedList<Product>();
 		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
-				"SELECT * FROM products");
+				"SELECT * FROM products ORDER BY name ASC");
 		try (ResultSet resSet = prep.executeQuery()) {
 			while (resSet.next()) {
 				res.add(new Product(resSet));
