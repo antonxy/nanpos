@@ -63,7 +63,28 @@ public class BuyWindow extends Window {
             horizontalLayout.addChild(new Button("Aufladen", new Runnable() {
                 @Override
                 public void run() {
-
+                    getTui().openWindow(new LoginWindow(new LoginWindow.LoginResultHandler() {
+                        @Override
+                        public void handle(User user, final LoginWindow caller, String detailMessage) {
+                            if (user == null) {
+                                final ResultScreen resultScreen = new ResultScreen(detailMessage, TextColor.ANSI.RED);
+                                resultScreen.setDoneCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        caller.close();
+                                    }
+                                });
+                                getTui().openWindow(resultScreen);
+                            } else {
+                                getTui().openWindow(new RechargeWindow(user, new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        caller.close();
+                                    }
+                                }));
+                            }
+                        }
+                    }, false, "Select account to recharge"));
                 }
             }));
         }

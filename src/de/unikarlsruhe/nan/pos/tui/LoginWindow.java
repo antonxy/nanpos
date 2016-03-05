@@ -10,14 +10,16 @@ import java.sql.SQLException;
  */
 public class LoginWindow extends Window {
 
-    public LoginWindow(final NumpadResultHandler resultHandler) {
+    public LoginWindow(final LoginResultHandler resultHandler, boolean withAsciiArt, String message) {
         CenterLayout centerLayout = new CenterLayout();
         setCentralComponent(centerLayout);
         VerticalLayout verticalLayout = new VerticalLayout();
         centerLayout.addChild(verticalLayout);
 
-        AsciiArt asciiArt = new AsciiArt();
-        verticalLayout.addChild(asciiArt);
+        if (withAsciiArt) {
+            AsciiArt asciiArt = new AsciiArt();
+            verticalLayout.addChild(asciiArt);
+        }
 
         final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
             @Override
@@ -35,11 +37,11 @@ public class LoginWindow extends Window {
                     resultHandler.handle(null, LoginWindow.this, "NoSuchAlgorithmException - WAT?");
                 }
             }
-        }, true);
+        }, true, message == null?"Login to account":message);
         verticalLayout.addChild(numpad);
     }
 
-    public interface NumpadResultHandler {
+    public interface LoginResultHandler {
         public void handle(User user, LoginWindow caller, String detailMessage);
     }
 }

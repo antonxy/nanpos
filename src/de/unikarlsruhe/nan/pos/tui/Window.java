@@ -10,9 +10,23 @@ import com.googlecode.lanterna.TerminalSize;
 public class Window extends Component {
     private Component centralComponent;
 
+    private TUI tui;
+
     protected void setCentralComponent(Component centralComponent) {
         centralComponent.setParent(this);
         this.centralComponent = centralComponent;
+    }
+
+    protected void setTui(TUI tui){
+        this.tui = tui;
+    }
+
+    public TUI getTui() {
+        return tui;
+    }
+
+    public void close() {
+        tui.closeWindow(this);
     }
 
     @Override

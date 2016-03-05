@@ -15,12 +15,12 @@ public class Numpad extends Component {
     private final boolean secure;
     private String enteredText = "";
 
-    public Numpad(final NumpadResultHandler resultHandler, boolean secure) {
+    public Numpad(final NumpadResultHandler resultHandler, boolean secure, String message) {
         this.secure = secure;
         verticalLayout = new VerticalLayout();
         verticalLayout.setParent(this);
 
-        label = new Label("");
+        label = new Label(message);
         verticalLayout.addChild(label);
 
         gridLayout = new GridLayout(3);

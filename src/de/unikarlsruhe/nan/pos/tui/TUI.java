@@ -19,6 +19,7 @@ public class TUI extends Component implements ClickListener {
 
     public void openWindow(Window child) {
         child.setParent(this);
+        child.setTui(this);
         windowStack.add(child);
         layout();
         redraw();
@@ -30,7 +31,7 @@ public class TUI extends Component implements ClickListener {
             if (i == 0) {
                 System.exit(0); //TODO
             } else {
-                while (windowStack.size() > 1) {
+                while (windowStack.size() > i) {
                     windowStack.removeLast();
                 }
             }

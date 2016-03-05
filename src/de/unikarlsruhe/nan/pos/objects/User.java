@@ -51,6 +51,16 @@ public class User {
 		return true;
 	}
 
+	public void recharge(int amount) throws SQLException {
+		PreparedStatement prep = DatabaseConnection
+				.getInstance()
+				.prepare(
+						"INSERT INTO revenues (\"user\", amount, product) VALUES(?, ?, NULL)");
+		prep.setInt(1, id);
+		prep.setInt(2, amount);
+		prep.execute();
+	}
+
 	public synchronized boolean buy(Product p) throws SQLException {
 		if (balance + 400 >= p.getPrice()) {
 			PreparedStatement prep = DatabaseConnection
