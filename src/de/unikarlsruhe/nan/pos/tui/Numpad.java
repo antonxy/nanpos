@@ -3,6 +3,10 @@ package de.unikarlsruhe.nan.pos.tui;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
+import de.unikarlsruhe.nan.pos.objects.User;
+
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 
 /**
  * @author Anton Schirg
@@ -55,7 +59,17 @@ public class Numpad extends Component {
         gridLayout.addChild(new Button("OK", new Runnable() {
             @Override
             public void run() {
-                resultHandler.handle(enteredText, Numpad.this);
+                try {
+                    User userByPIN = User.getUserByPIN(enteredText);
+                    String detailMessage = userByPIN == null ? "Unknown user" : "Success";
+                    resultHandler.handle(userByPIN, Numpad.this, detailMessage);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    resultHandler.handle(null, Numpad.this, "SQL Exception");
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                    resultHandler.handle(null, Numpad.this, "NoSuchAlgorithmException - WAT?");
+                }
             }
         }));
     }
@@ -100,6 +114,6 @@ public class Numpad extends Component {
     }
 
     public interface NumpadResultHandler {
-        public void handle(String result, Numpad caller);
+        public void handle(User user, Numpad caller, String detailMessage);
     }
 }

@@ -47,17 +47,10 @@ public class Main {
 
         final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
             @Override
-            public void handle(String result, Numpad caller) {
+            public void handle(User user, Numpad caller, String detailMessage) {
                 caller.clear();
-                User userByPIN;
-                try {
-                    userByPIN = User.getUserByPIN(result);
-                } catch (SQLException | NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                if (userByPIN != null) {
-                    BuyWindow buyWindow = new BuyWindow(userByPIN);
+                if (user != null) {
+                    BuyWindow buyWindow = new BuyWindow(user);
                     buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
                         @Override
                         public void handle(String result, TextColor color) {
@@ -73,7 +66,7 @@ public class Main {
                     });
                     tui.setWindow(buyWindow);
                 } else {
-                    ResultScreen resultScreen = new ResultScreen("User does not exist", TextColor.ANSI.RED);
+                    ResultScreen resultScreen = new ResultScreen(detailMessage, TextColor.ANSI.RED);
                     resultScreen.setDoneCallback(new Runnable() {
                         @Override
                         public void run() {
