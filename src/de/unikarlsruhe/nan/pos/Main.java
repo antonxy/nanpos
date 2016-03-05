@@ -71,6 +71,15 @@ public class Main {
                         }
                     });
                     tui.setWindow(buyWindow);
+                } else {
+                    ResultScreen resultScreen = new ResultScreen("User does not exist");
+                    resultScreen.setDoneCallback(new Runnable() {
+                        @Override
+                        public void run() {
+                            tui.setWindow(loginLayout);
+                        }
+                    });
+                    tui.setWindow(resultScreen);
                 }
             }
         }, true);
@@ -103,6 +112,8 @@ public class Main {
                                 TerminalPosition position = mouseAction.getPosition();
                                 tui.clicked(position);
                             }
+                        } else {
+                            PS2BarcodeScanner.getInstance().keyPressedEvent(keyStroke);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

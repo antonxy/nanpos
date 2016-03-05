@@ -11,7 +11,8 @@ import de.unikarlsruhe.nan.pos.DatabaseConnection;
 public class Product {
 	private String name;
 	private int price;
-	private int id, ean;
+	private int id;
+	private long ean;
 
 	public static List<Product> getAllProducts() throws SQLException {
 		LinkedList<Product> res = new LinkedList<Product>();
@@ -25,21 +26,23 @@ public class Product {
 		return res;
 	}
 
-	public static Product getByEAN(int ean) throws SQLException {
+	public static Product getByEAN(long ean) throws SQLException {
 		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
 				"SELECT * FROM products WHERE ean=?");
-		prep.setInt(1, ean);
+		prep.setLong(1, ean);
 		try (ResultSet res = prep.executeQuery()) {
-			res.next();
-			return new Product(res);
+			if (res.next()) {
+				return new Product(res);
+			}
 		}
+		return null;
 	}
 
 	public Product(ResultSet resSet) throws SQLException {
 		this.name = resSet.getString("name");
 		this.price = resSet.getInt("price");
 		this.id = resSet.getInt("id");
-		this.ean = resSet.getInt("ean");
+		this.ean = resSet.getLong("ean");
 	}
 
 	public String getName() {
@@ -54,7 +57,7 @@ public class Product {
 		return id;
 	}
 
-	public int getEan() {
+	public long getEan() {
 		return ean;
 	}
 

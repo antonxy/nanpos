@@ -24,7 +24,7 @@ public class BuyWindow extends Component {
         verticalLayout = new VerticalLayout();
         verticalLayout.setParent(this);
 
-        double balance = ((double) user.getBalance()) / 100;
+        final double balance = ((double) user.getBalance()) / 100;
         balanceLabel = new Label("Balance: " + balance);
         verticalLayout.addChild(balanceLabel);
         GridLayout gridLayout = new GridLayout(4);
@@ -46,11 +46,14 @@ public class BuyWindow extends Component {
 
         PS2BarcodeScanner.getInstance().setBarcodeListener(new PS2BarcodeScanner.BarcodeListener() {
             @Override
-            public void barcodeScanned(int barCode) {
+            public void barcodeScanned(long barCode) {
+                System.err.println("Scanned " + barCode);
                 try {
                     Product byEAN = Product.getByEAN(barCode);
                     if (byEAN != null) {
                         clickedProduct(byEAN);
+                    } else {
+                        resultCallback.handle("Unknown product");
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();

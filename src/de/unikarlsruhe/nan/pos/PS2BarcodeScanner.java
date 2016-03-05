@@ -1,14 +1,15 @@
 package de.unikarlsruhe.nan.pos;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
+
+import java.io.*;
 
 public class PS2BarcodeScanner {
 	private static PS2BarcodeScanner instance = null;
 	private File source;
 	private BarcodeListener listener = null;
+	private String buffer = "";
 
 	public static void init(NANPosConfiguration configuration) {
 		try {
@@ -19,36 +20,25 @@ public class PS2BarcodeScanner {
 	}
 
 	private PS2BarcodeScanner(String sourceDevice) throws IOException {
-		if (sourceDevice == null) {
-			System.err.println("No barcode scanner configured.");
-			return;
-		}
-		source = new File(sourceDevice);
-		run();
+
 	}
 
-	private void run() throws IOException {
-		try (final BufferedReader inRead = new BufferedReader(new FileReader(
-				source))) {
-			new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					while (true) {
-						try {
-							String tmp = inRead.readLine().trim();
-							int scanned = Integer.parseInt(tmp);
-							synchronized (PS2BarcodeScanner.this.listener) {
-								if (listener != null) {
-									listener.barcodeScanned(scanned);
-								}
-							}
-						} catch (NumberFormatException | IOException e) {
-							System.err.println("Ignored garbage from scanner.");
-						}
-					}
+	public void keyPressedEvent(KeyStroke keyStroke) {
+		if (keyStroke.getKeyType() == KeyType.Enter) {
+			if (listener != null) {
+				try {
+					long scanned = Long.parseLong(buffer);
+					listener.barcodeScanned(scanned);
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
 				}
-			}, "Barcode scanner thread").start();
+			}
+			buffer = "";
+		} else {
+			Character ch = keyStroke.getCharacter();
+			if (ch != null && Character.isDigit(ch)) {
+				buffer += ch;
+			}
 		}
 	}
 
@@ -61,7 +51,7 @@ public class PS2BarcodeScanner {
 	}
 
 	public static interface BarcodeListener {
-		public void barcodeScanned(int barCode);
+		public void barcodeScanned(long barCode);
 	}
 
 	static public PS2BarcodeScanner getInstance() {
