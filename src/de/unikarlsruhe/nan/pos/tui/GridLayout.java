@@ -4,6 +4,7 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +16,9 @@ public class GridLayout extends Container {
     private int columns;
     private int colWidth;
     private int rowHeight;
+
+    private final int colMargin = 1;
+    private final int rowMargin = 0;
 
     public GridLayout(int columns) {
         this.columns = columns;
@@ -41,8 +45,8 @@ public class GridLayout extends Container {
         for (Component child : children) {
             int col = i % columns;
             int row = i / columns;
-            int posY = row * rowHeight + row;
-            int posX = col * colWidth + col * 2;
+            int posY = row * rowHeight + row * (rowMargin + 1);
+            int posX = col * colWidth + col * (colMargin + 1);
             child.layout(new TerminalRectangle(position.getPosition().withRelative(new TerminalPosition(posX, posY)), new TerminalSize(colWidth, rowHeight)));
             i++;
         }
@@ -61,7 +65,7 @@ public class GridLayout extends Container {
                 rowHeight = preferredSize.getRows();
             }
         }
-        int rows = children.size();
-        return new TerminalSize(columns * colWidth + columns, ((int) Math.ceil(((double) rows) / columns)) * rowHeight + rows);
+        int rows = (int) Math.ceil(((double) children.size()) / columns);
+        return new TerminalSize(columns * colWidth + (columns - 1) * (colMargin + 1), rows * rowHeight + (rows - 1) * (rowMargin + 1));
     }
 }

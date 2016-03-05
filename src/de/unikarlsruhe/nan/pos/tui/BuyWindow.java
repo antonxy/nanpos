@@ -19,11 +19,14 @@ public class BuyWindow extends Component {
     private final VerticalLayout verticalLayout;
     private final Label balanceLabel;
     private BuyWindowResultHandler resultCallback;
+    private final CenterLayout centerLayout;
 
     public BuyWindow(final User user) {
         this.user = user;
+        centerLayout = new CenterLayout();
+        centerLayout.setParent(this);
         verticalLayout = new VerticalLayout();
-        verticalLayout.setParent(this);
+        centerLayout.addChild(verticalLayout);
 
         final double balance = ((double) user.getBalance()) / 100;
         balanceLabel = new Label("Balance: " + balance);
@@ -89,22 +92,22 @@ public class BuyWindow extends Component {
 
     @Override
     TerminalSize getPreferredSize() {
-        return verticalLayout.getPreferredSize();
+        return centerLayout.getPreferredSize();
     }
 
     @Override
     protected void layout(TerminalRectangle position) {
-        verticalLayout.layout(position);
+        centerLayout.layout(position);
     }
 
     @Override
     void redraw() {
-        verticalLayout.redraw();
+        centerLayout.redraw();
     }
 
     @Override
     protected void onClick(TerminalPosition position) {
-        verticalLayout.onClick(position);
+        centerLayout.onClick(position);
     }
 
     public interface BuyWindowResultHandler {

@@ -32,7 +32,7 @@ public class Button extends Component {
 	void redraw() {
 		super.redraw();
 		TextGraphics graphics = getScreen().newTextGraphics();
-		GraphicsUtils.drawFancyBoxDouble(graphics, position);
+		GraphicsUtils.drawFancyBoxSingle(graphics, position);
 		graphics.putString(
 				position.getPosition()
 						.withRelative(
@@ -53,6 +53,6 @@ public class Button extends Component {
 
 	@Override
 	TerminalSize getPreferredSize() {
-		return new TerminalSize(text.length() + 12, 6);
+		return new TerminalSize(text.length() + 10, 6);
 	}
 }
