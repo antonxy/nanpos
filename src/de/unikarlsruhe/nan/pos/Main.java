@@ -1,5 +1,9 @@
 package de.unikarlsruhe.nan.pos;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.SQLException;
+
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -14,107 +18,112 @@ import com.googlecode.lanterna.terminal.MouseCaptureMode;
 import com.googlecode.lanterna.terminal.ResizeListener;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
-import de.unikarlsruhe.nan.pos.objects.User;
-import de.unikarlsruhe.nan.pos.tui.*;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
+import de.unikarlsruhe.nan.pos.objects.User;
+import de.unikarlsruhe.nan.pos.tui.BuyWindow;
+import de.unikarlsruhe.nan.pos.tui.CenterLayout;
+import de.unikarlsruhe.nan.pos.tui.Numpad;
+import de.unikarlsruhe.nan.pos.tui.ResultScreen;
+import de.unikarlsruhe.nan.pos.tui.TUI;
 
 /**
  * @author Anton Schirg
  */
 public class Main {
 
-    public static void main(String[] args) throws IOException, SQLException {
-        NANPosConfiguration nanConf = new NANPosConfiguration(
-                new FileInputStream("conf/nanpos.properties"));
-        DatabaseConnection.init(nanConf);
-        PS2BarcodeScanner.init(nanConf);
+	public static void main(String[] args) throws IOException, SQLException {
+		NANPosConfiguration nanConf = new NANPosConfiguration(
+				new FileInputStream("conf/nanpos.properties"));
+		DatabaseConnection.init(nanConf);
+		PS2BarcodeScanner.init(nanConf);
 
-        final Terminal terminal = new DefaultTerminalFactory().createTerminal();
+		final Terminal terminal = new DefaultTerminalFactory().createTerminal();
+		terminal.setCursorVisible(false);
+		final Screen screen = new TerminalScreen(terminal);
+		screen.startScreen();
+		screen.clear();
 
-        final Screen screen = new TerminalScreen(terminal);
-        screen.startScreen();
-        screen.clear();
+		final TUI tui = new TUI(screen);
 
-        final TUI tui = new TUI(screen);
+		terminal.addClickListener(tui);
 
-        terminal.addClickListener(tui);
+		final CenterLayout loginLayout = new CenterLayout();
 
-        final CenterLayout loginLayout = new CenterLayout();
+		final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
+			@Override
+			public void handle(User user, Numpad caller, String detailMessage) {
+				caller.clear();
+				if (user != null) {
+					BuyWindow buyWindow = new BuyWindow(user);
+					buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
+						@Override
+						public void handle(String result, TextColor color) {
+							ResultScreen resultScreen = new ResultScreen(
+									result, color);
+							resultScreen.setDoneCallback(new Runnable() {
+								@Override
+								public void run() {
+									tui.setWindow(loginLayout);
+								}
+							});
+							tui.setWindow(resultScreen);
+						}
+					});
+					tui.setWindow(buyWindow);
+				} else {
+					ResultScreen resultScreen = new ResultScreen(detailMessage,
+							TextColor.ANSI.RED);
+					resultScreen.setDoneCallback(new Runnable() {
+						@Override
+						public void run() {
+							tui.setWindow(loginLayout);
+						}
+					});
+					tui.setWindow(resultScreen);
+				}
+			}
+		}, true);
+		loginLayout.addChild(numpad);
+		tui.setWindow(loginLayout);
 
-        final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
-            @Override
-            public void handle(User user, Numpad caller, String detailMessage) {
-                caller.clear();
-                if (user != null) {
-                    BuyWindow buyWindow = new BuyWindow(user);
-                    buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
-                        @Override
-                        public void handle(String result, TextColor color) {
-                            ResultScreen resultScreen = new ResultScreen(result, color);
-                            resultScreen.setDoneCallback(new Runnable() {
-                                @Override
-                                public void run() {
-                                    tui.setWindow(loginLayout);
-                                }
-                            });
-                            tui.setWindow(resultScreen);
-                        }
-                    });
-                    tui.setWindow(buyWindow);
-                } else {
-                    ResultScreen resultScreen = new ResultScreen(detailMessage, TextColor.ANSI.RED);
-                    resultScreen.setDoneCallback(new Runnable() {
-                        @Override
-                        public void run() {
-                            tui.setWindow(loginLayout);
-                        }
-                    });
-                    tui.setWindow(resultScreen);
-                }
-            }
-        }, true);
-        loginLayout.addChild(numpad);
-        tui.setWindow(loginLayout);
-
-        terminal.addResizeListener(new ResizeListener() {
-            @Override
-            public void onResized(Terminal terminal, TerminalSize newSize) {
-                tui.layout();
-                tui.redraw();
-            }
-        });
-        Thread mouseThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (terminal instanceof ANSITerminal) {
-                    try {
-                        ((ANSITerminal) terminal).setMouseCaptureMode(MouseCaptureMode.CLICK_RELEASE);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                while (true) {
-                    try {
-                        KeyStroke keyStroke = terminal.readInput();
-                        if (keyStroke.getKeyType() == KeyType.MouseEvent) {
-                            MouseAction mouseAction = (MouseAction) keyStroke;
-                            if (mouseAction.getActionType() == MouseActionType.CLICK_DOWN) {
-                                TerminalPosition position = mouseAction.getPosition();
-                                tui.clicked(position);
-                            }
-                        } else {
-                            PS2BarcodeScanner.getInstance().keyPressedEvent(keyStroke);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-        mouseThread.start();
-    }
+		terminal.addResizeListener(new ResizeListener() {
+			@Override
+			public void onResized(Terminal terminal, TerminalSize newSize) {
+				tui.layout();
+				tui.redraw();
+			}
+		});
+		Thread mouseThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				if (terminal instanceof ANSITerminal) {
+					try {
+						((ANSITerminal) terminal)
+								.setMouseCaptureMode(MouseCaptureMode.CLICK_RELEASE);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				while (true) {
+					try {
+						KeyStroke keyStroke = terminal.readInput();
+						if (keyStroke.getKeyType() == KeyType.MouseEvent) {
+							MouseAction mouseAction = (MouseAction) keyStroke;
+							if (mouseAction.getActionType() == MouseActionType.CLICK_DOWN) {
+								TerminalPosition position = mouseAction
+										.getPosition();
+								tui.clicked(position);
+							}
+						} else {
+							PS2BarcodeScanner.getInstance().keyPressedEvent(
+									keyStroke);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		mouseThread.start();
+	}
 }
