@@ -1,8 +1,6 @@
 package de.unikarlsruhe.nan.pos.tui;
 
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalRectangle;
-import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.*;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.screen.Screen;
 
@@ -12,14 +10,19 @@ import com.googlecode.lanterna.screen.Screen;
 public abstract class Component {
     protected TerminalRectangle position;
     protected Component parent;
+    private TextColor backgroundColor = TextColor.ANSI.DEFAULT;
 
     protected void layout(TerminalRectangle position) {
         this.position = position;
     }
 
+    public void setBackgroundColor(TextColor backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
     void redraw() {
         TextGraphics textGraphics = getScreen().newTextGraphics();
-        textGraphics.fillRectangle(position.getPosition(), position.getSize(), ' ');
+        textGraphics.fillRectangle(position.getPosition(), position.getSize(), new TextCharacter(' ', TextColor.ANSI.DEFAULT, backgroundColor));
     }
     abstract TerminalSize getPreferredSize();
 

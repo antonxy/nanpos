@@ -3,6 +3,7 @@ package de.unikarlsruhe.nan.pos.tui;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextColor;
 import de.unikarlsruhe.nan.pos.PS2BarcodeScanner;
 import de.unikarlsruhe.nan.pos.objects.Product;
 import de.unikarlsruhe.nan.pos.objects.User;
@@ -47,7 +48,7 @@ public class BuyWindow extends Component {
         gridLayout.addChild(new Button("Back", new Runnable() {
             @Override
             public void run() {
-                resultCallback.handle("Exited by user");
+                resultCallback.handle("Exited by user", TextColor.ANSI.BLUE);
             }
         }));
 
@@ -60,7 +61,7 @@ public class BuyWindow extends Component {
                     if (byEAN != null) {
                         clickedProduct(byEAN);
                     } else {
-                        resultCallback.handle("Unknown product");
+                        resultCallback.handle("Unknown product", TextColor.ANSI.RED);
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -73,7 +74,8 @@ public class BuyWindow extends Component {
         PS2BarcodeScanner.getInstance().removeBarcodeListener();
         try {
             boolean success = user.buy(product);
-            resultCallback.handle(success ? "Big success - you have bought the product" : "Fatal error - could not buy the product");
+            resultCallback.handle(success ? "Big success - you have bought the product" : "Fatal error - could not buy the product",
+                    success ? TextColor.ANSI.GREEN : TextColor.ANSI.RED);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -106,6 +108,6 @@ public class BuyWindow extends Component {
     }
 
     public interface BuyWindowResultHandler {
-        public void handle(String result);
+        public void handle(String result, TextColor color);
     }
 }

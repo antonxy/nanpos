@@ -3,6 +3,7 @@ package de.unikarlsruhe.nan.pos.tui;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextColor;
 
 /**
  * @author Anton Schirg
@@ -12,8 +13,9 @@ public class ResultScreen extends Component {
     private final CenterLayout centerLayout;
     private Runnable callback;
 
-    public ResultScreen(String result) {
+    public ResultScreen(String result, TextColor backgroundColor) {
         centerLayout = new CenterLayout();
+        centerLayout.setBackgroundColor(backgroundColor);
         centerLayout.setParent(this);
         Button label = new Button(result, new Runnable() {
             @Override

@@ -30,6 +30,7 @@ public class Button extends Component {
 
     @Override
     void redraw() {
+        super.redraw();
         TextGraphics graphics = getScreen().newTextGraphics();
         graphics.drawRectangle(position.getPosition(), position.getSize(), '*');
         graphics.putString(position.getPosition().withRelative(position.getSize().getColumns() / 2 - text.length() / 2, position.getSize().getRows() / 2), text);

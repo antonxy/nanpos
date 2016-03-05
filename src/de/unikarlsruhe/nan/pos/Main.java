@@ -2,6 +2,7 @@ package de.unikarlsruhe.nan.pos;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.input.MouseAction;
@@ -59,8 +60,8 @@ public class Main {
                     BuyWindow buyWindow = new BuyWindow(userByPIN);
                     buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
                         @Override
-                        public void handle(String result) {
-                            ResultScreen resultScreen = new ResultScreen(result);
+                        public void handle(String result, TextColor color) {
+                            ResultScreen resultScreen = new ResultScreen(result, color);
                             resultScreen.setDoneCallback(new Runnable() {
                                 @Override
                                 public void run() {
@@ -72,7 +73,7 @@ public class Main {
                     });
                     tui.setWindow(buyWindow);
                 } else {
-                    ResultScreen resultScreen = new ResultScreen("User does not exist");
+                    ResultScreen resultScreen = new ResultScreen("User does not exist", TextColor.ANSI.RED);
                     resultScreen.setDoneCallback(new Runnable() {
                         @Override
                         public void run() {

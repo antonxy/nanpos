@@ -27,6 +27,11 @@ public class CenterLayout extends Container {
     }
 
     @Override
+    void redraw() {
+        super.redraw();
+    }
+
+    @Override
     protected void layout(TerminalRectangle position) {
         super.layout(position);
         if (child != null) {
