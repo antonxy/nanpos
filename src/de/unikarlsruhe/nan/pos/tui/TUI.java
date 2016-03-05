@@ -6,17 +6,35 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.ClickListener;
 
+import java.util.LinkedList;
+
 public class TUI extends Component implements ClickListener {
     private Screen screen;
-    private Component window;
+
+    private LinkedList<Window> windowStack = new LinkedList<>();
 
     public TUI(Screen screen) {
         this.screen = screen;
     }
 
-    public void setWindow(Component child) {
+    public void openWindow(Window child) {
         child.setParent(this);
-        window = child;
+        windowStack.add(child);
+        layout();
+        redraw();
+    }
+
+    public void closeWindow(Window window) {
+        int i = windowStack.indexOf(window);
+        if (i != -1) {
+            if (i == 0) {
+                System.exit(0); //TODO
+            } else {
+                while (windowStack.size() > 1) {
+                    windowStack.removeLast();
+                }
+            }
+        }
         layout();
         redraw();
     }
@@ -27,12 +45,12 @@ public class TUI extends Component implements ClickListener {
 
     @Override
     protected void layout(TerminalRectangle position) {
-        window.layout(position);
+        windowStack.getLast().layout(position);
     }
 
     @Override
     public void redraw() {
-        window.redraw();
+        windowStack.getLast().redraw();
     }
 
     @Override
@@ -47,7 +65,7 @@ public class TUI extends Component implements ClickListener {
 
     @Override
     protected void onClick(TerminalPosition position) {
-        window.onClick(position);
+        windowStack.getLast().onClick(position);
     }
 
     @Override

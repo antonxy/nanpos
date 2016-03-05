@@ -47,13 +47,11 @@ public class Main {
 
 		terminal.addClickListener(tui);
 
-		final CenterLayout loginLayout = new CenterLayout();
-
 		final LoginWindow loginWindow = new LoginWindow(new LoginWindow.NumpadResultHandler() {
 			@Override
 			public void handle(User user, LoginWindow caller, String detailMessage) {
 				if (user != null) {
-					BuyWindow buyWindow = new BuyWindow(user);
+					final BuyWindow buyWindow = new BuyWindow(user);
 					buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
 						@Override
 						public void handle(String result, TextColor color) {
@@ -62,28 +60,27 @@ public class Main {
 							resultScreen.setDoneCallback(new Runnable() {
 								@Override
 								public void run() {
-									tui.setWindow(loginLayout);
+									tui.closeWindow(buyWindow);
 								}
 							});
-							tui.setWindow(resultScreen);
+							tui.openWindow(resultScreen);
 						}
 					});
-					tui.setWindow(buyWindow);
+					tui.openWindow(buyWindow);
 				} else {
-					ResultScreen resultScreen = new ResultScreen(detailMessage,
+					final ResultScreen resultScreen = new ResultScreen(detailMessage,
 							TextColor.ANSI.RED);
 					resultScreen.setDoneCallback(new Runnable() {
 						@Override
 						public void run() {
-							tui.setWindow(loginLayout);
+							tui.closeWindow(resultScreen);
 						}
 					});
-					tui.setWindow(resultScreen);
+					tui.openWindow(resultScreen);
 				}
 			}
 		});
-		loginLayout.addChild(loginWindow);
-		tui.setWindow(loginLayout);
+		tui.openWindow(loginWindow);
 
 		terminal.addResizeListener(new ResizeListener() {
 			@Override

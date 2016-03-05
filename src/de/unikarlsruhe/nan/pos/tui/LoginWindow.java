@@ -1,8 +1,5 @@
 package de.unikarlsruhe.nan.pos.tui;
 
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalRectangle;
-import com.googlecode.lanterna.TerminalSize;
 import de.unikarlsruhe.nan.pos.objects.User;
 
 import java.security.NoSuchAlgorithmException;
@@ -11,13 +8,13 @@ import java.sql.SQLException;
 /**
  * @author Anton Schirg
  */
-public class LoginWindow extends Component {
-
-    private final VerticalLayout verticalLayout;
+public class LoginWindow extends Window {
 
     public LoginWindow(final NumpadResultHandler resultHandler) {
-        verticalLayout = new VerticalLayout();
-        verticalLayout.setParent(this);
+        CenterLayout centerLayout = new CenterLayout();
+        setCentralComponent(centerLayout);
+        VerticalLayout verticalLayout = new VerticalLayout();
+        centerLayout.addChild(verticalLayout);
 
         AsciiArt asciiArt = new AsciiArt();
         verticalLayout.addChild(asciiArt);
@@ -40,28 +37,6 @@ public class LoginWindow extends Component {
             }
         }, true);
         verticalLayout.addChild(numpad);
-    }
-
-    @Override
-    protected void layout(TerminalRectangle position) {
-        super.layout(position);
-        verticalLayout.layout(position);
-    }
-
-    @Override
-    void redraw() {
-        super.redraw();
-        verticalLayout.redraw();
-    }
-
-    @Override
-    TerminalSize getPreferredSize() {
-        return verticalLayout.getPreferredSize();
-    }
-
-    @Override
-    protected void onClick(TerminalPosition position) {
-        verticalLayout.onClick(position);
     }
 
     public interface NumpadResultHandler {

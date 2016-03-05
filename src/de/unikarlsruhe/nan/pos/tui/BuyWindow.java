@@ -16,7 +16,7 @@ import java.util.Locale;
 /**
  * @author Anton Schirg
  */
-public class BuyWindow extends Component {
+public class BuyWindow extends Window {
     private User user;
     private final VerticalLayout verticalLayout;
     private final Label balanceLabel;
@@ -26,7 +26,7 @@ public class BuyWindow extends Component {
     public BuyWindow(final User user) {
         this.user = user;
         centerLayout = new CenterLayout();
-        centerLayout.setParent(this);
+        setCentralComponent(centerLayout);
         verticalLayout = new VerticalLayout();
         centerLayout.addChild(verticalLayout);
 
@@ -63,7 +63,7 @@ public class BuyWindow extends Component {
             horizontalLayout.addChild(new Button("Aufladen", new Runnable() {
                 @Override
                 public void run() {
-                    
+
                 }
             }));
         }

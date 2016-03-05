@@ -8,15 +8,14 @@ import com.googlecode.lanterna.TextColor;
 /**
  * @author Anton Schirg
  */
-public class ResultScreen extends Component {
+public class ResultScreen extends Window {
 
-    private final CenterLayout centerLayout;
     private Runnable callback;
 
     public ResultScreen(String result, TextColor backgroundColor) {
-        centerLayout = new CenterLayout();
+        CenterLayout centerLayout = new CenterLayout();
         centerLayout.setBackgroundColor(backgroundColor);
-        centerLayout.setParent(this);
+        setCentralComponent(centerLayout);
         Button label = new Button(result, new Runnable() {
             @Override
             public void run() {
@@ -30,25 +29,5 @@ public class ResultScreen extends Component {
 
     public void setDoneCallback(Runnable callback) {
         this.callback = callback;
-    }
-
-    @Override
-    TerminalSize getPreferredSize() {
-        return centerLayout.getPreferredSize();
-    }
-
-    @Override
-    protected void layout(TerminalRectangle position) {
-        centerLayout.layout(position);
-    }
-
-    @Override
-    void redraw() {
-        centerLayout.redraw();
-    }
-
-    @Override
-    protected void onClick(TerminalPosition position) {
-        centerLayout.onClick(position);
     }
 }
