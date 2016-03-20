@@ -59,7 +59,7 @@ public class BuyWindow extends Window {
             }
         }));
 
-        if (user.isAdmin()) {
+        if (user.isOpeartor()) {
             horizontalLayout.addChild(new Button("Recharge", new Runnable() {
                 @Override
                 public void run() {
