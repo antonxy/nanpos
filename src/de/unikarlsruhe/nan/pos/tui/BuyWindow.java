@@ -60,7 +60,7 @@ public class BuyWindow extends Window {
         }));
 
         if (user.isAdmin()) {
-            horizontalLayout.addChild(new Button("Aufladen", new Runnable() {
+            horizontalLayout.addChild(new Button("Recharge", new Runnable() {
                 @Override
                 public void run() {
                     getTui().openWindow(new LoginWindow(new LoginWindow.LoginResultHandler() {
@@ -81,10 +81,38 @@ public class BuyWindow extends Window {
                                     public void run() {
                                         caller.close();
                                     }
-                                }));
+                                }, false));
                             }
                         }
                     }, false, "Select account to recharge"));
+                }
+            }));
+
+            horizontalLayout.addChild(new Button("Discharge", new Runnable() {
+                @Override
+                public void run() {
+                    getTui().openWindow(new LoginWindow(new LoginWindow.LoginResultHandler() {
+                        @Override
+                        public void handle(User user, final LoginWindow caller, String detailMessage) {
+                            if (user == null) {
+                                final ResultScreen resultScreen = new ResultScreen(detailMessage, TextColor.ANSI.RED);
+                                resultScreen.setDoneCallback(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        caller.close();
+                                    }
+                                });
+                                getTui().openWindow(resultScreen);
+                            } else {
+                                getTui().openWindow(new RechargeWindow(user, new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        caller.close();
+                                    }
+                                }, true));
+                            }
+                        }
+                    }, false, "Select account to discharge"));
                 }
             }));
         }

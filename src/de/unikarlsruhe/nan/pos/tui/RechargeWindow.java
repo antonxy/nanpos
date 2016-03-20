@@ -9,16 +9,20 @@ import java.sql.SQLException;
  * @author Anton Schirg
  */
 public class RechargeWindow extends Window {
-    public RechargeWindow(final User user, final Runnable doneCallback) {
+    public RechargeWindow(final User user, final Runnable doneCallback, final boolean discharge) {
         CenterLayout centerLayout = new CenterLayout();
         setCentralComponent(centerLayout);
+
+        String message = discharge? "Enter amount to discharge (EUR)" : "Enter amount to recharge (EUR)";
+
         Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
             @Override
             public void handle(String enteredText, Numpad caller) {
                 try {
                     int amount = Integer.parseInt(enteredText) * 100;
-                    user.recharge(amount);
-                    ResultScreen resultScreen = new ResultScreen("Recharged " + amount + "ct to account", TextColor.ANSI.GREEN);
+                    user.recharge(discharge ? -amount : amount);
+                    String chargeMsg = discharge ? "Discharged " : "Recharged ";
+                    ResultScreen resultScreen = new ResultScreen(chargeMsg + amount + "ct to account", TextColor.ANSI.GREEN);
                     resultScreen.setDoneCallback(new Runnable() {
                         @Override
                         public void run() {
@@ -30,7 +34,7 @@ public class RechargeWindow extends Window {
                     e.printStackTrace();
                 }
             }
-        }, false, "Enter amount to recharge");
+        }, false, message);
         centerLayout.addChild(numpad);
     }
 }
