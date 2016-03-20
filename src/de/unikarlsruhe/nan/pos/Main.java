@@ -20,10 +20,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 
 import de.unikarlsruhe.nan.pos.objects.User;
-import de.unikarlsruhe.nan.pos.tui.BuyWindow;
-import de.unikarlsruhe.nan.pos.tui.LoginWindow;
-import de.unikarlsruhe.nan.pos.tui.ResultScreen;
-import de.unikarlsruhe.nan.pos.tui.TUI;
+import de.unikarlsruhe.nan.pos.tui.*;
 
 /**
  * @author Anton Schirg
@@ -50,7 +47,7 @@ public class Main {
 			@Override
 			public void handle(User user, LoginWindow caller, String detailMessage) {
 				if (user != null) {
-					final BuyWindow buyWindow = new BuyWindow(user);
+					final BuyWindow buyWindow = RecyclingBuyWindowFactoryBuilder.build().factorarte(user);
 					buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
 						@Override
 						public void handle(String result, TextColor color) {
