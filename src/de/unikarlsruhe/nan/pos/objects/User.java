@@ -45,6 +45,20 @@ public class User {
 
 	}
 
+	public static void createUser(User operator, String pin, String cardnr) throws SQLException, NoSuchAlgorithmException {
+		PreparedStatement prep = DatabaseConnection
+				.getInstance()
+				.prepare(
+						"INSERT INTO users (pin, card) VALUES(?, ?)");
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+		messageDigest.update(pin.getBytes());
+		prep.setString(1, byteArrayToHexString(messageDigest.digest()));
+		MessageDigest messageDigest2 = MessageDigest.getInstance("SHA-1");
+		messageDigest2.update(cardnr.getBytes());
+		prep.setString(2, byteArrayToHexString(messageDigest2.digest()));
+		prep.execute();
+	}
+
     public User(ResultSet resSet) throws SQLException {
         this.id = resSet.getInt("id");
         this.operator = resSet.getBoolean("isop");

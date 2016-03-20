@@ -1,5 +1,6 @@
 package de.unikarlsruhe.nan.pos.tui;
 
+import de.unikarlsruhe.nan.pos.CardReader;
 import de.unikarlsruhe.nan.pos.objects.User;
 
 import javax.jws.soap.SOAPBinding;
@@ -15,7 +16,7 @@ public class CreateUserWindow extends Window {
     boolean secondEnter = false;
     String firstEntered;
 
-    public CreateUserWindow(final CreateUserResultHandler resultHandler) {
+    public CreateUserWindow(final CreateUserResultHandler resultHandler, final User operator) {
         CenterLayout centerLayout = new CenterLayout();
         setCentralComponent(centerLayout);
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -27,7 +28,22 @@ public class CreateUserWindow extends Window {
                 caller.clear();
                 if (CreateUserWindow.this.secondEnter) {
                     if (Objects.equals(enteredText, firstEntered)) {
-                        resultHandler.handle(true, CreateUserWindow.this, "Created user (well no, not implemented yet)");
+                        final ScanCardWindow scanCardWindow = new ScanCardWindow(new CardReader.CardReaderListener() {
+                            @Override
+                            public void onCardDetected(String cardnr, String uid) {
+                                try {
+                                    User.createUser(operator, firstEntered, cardnr);
+                                    resultHandler.handle(true, CreateUserWindow.this, "Created user");
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                    resultHandler.handle(false, CreateUserWindow.this, "SQL Exception");
+                                } catch (NoSuchAlgorithmException e) {
+                                    e.printStackTrace();
+                                    resultHandler.handle(false, CreateUserWindow.this, "NoSuchAlgorithmException - WUT?");
+                                }
+                            }
+                        });
+                        getTui().openWindow(scanCardWindow);
                     } else {
                         resultHandler.handle(false, CreateUserWindow.this, "Entered ids do not match");
                     }

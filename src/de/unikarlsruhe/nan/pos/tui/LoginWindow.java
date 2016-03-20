@@ -11,6 +11,8 @@ import java.sql.SQLException;
  */
 public class LoginWindow extends Window {
 
+    private final CardReader.CardReaderListener cardReaderListener;
+
     public LoginWindow(final LoginResultHandler resultHandler, boolean withAsciiArt, String message) {
         CenterLayout centerLayout = new CenterLayout();
         setCentralComponent(centerLayout);
@@ -23,7 +25,7 @@ public class LoginWindow extends Window {
         }
 
         final CardReader cardReader = CardReader.getInstance();
-        cardReader.setListener(new CardReader.CardReaderListener() {
+        cardReaderListener = new CardReader.CardReaderListener() {
             @Override
             public void onCardDetected(String cardnr, String uid) {
                 if (LoginWindow.this.isVisible()) {
@@ -43,7 +45,8 @@ public class LoginWindow extends Window {
                     }
                 }
             }
-        });
+        };
+        cardReader.setListener(cardReaderListener);
 
         final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
             @Override
@@ -67,5 +70,10 @@ public class LoginWindow extends Window {
 
     public interface LoginResultHandler {
         public void handle(User user, LoginWindow caller, String detailMessage);
+    }
+
+    @Override
+    public void onVisible() {
+        CardReader.getInstance().setListener(cardReaderListener);
     }
 }

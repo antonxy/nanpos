@@ -54,15 +54,19 @@ public class Main {
 					buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
 						@Override
 						public void handle(String result, TextColor color) {
-							ResultScreen resultScreen = new ResultScreen(
-									result, color);
-							resultScreen.setDoneCallback(new Runnable() {
-								@Override
-								public void run() {
-									buyWindow.close();
-								}
-							});
-							tui.openWindow(resultScreen);
+							if (result != null) {
+								ResultScreen resultScreen = new ResultScreen(
+										result, color);
+								resultScreen.setDoneCallback(new Runnable() {
+									@Override
+									public void run() {
+										buyWindow.close();
+									}
+								});
+								tui.openWindow(resultScreen);
+							} else {
+								tui.closeWindow(buyWindow);
+							}
 						}
 					});
 					tui.openWindow(buyWindow);

@@ -55,7 +55,7 @@ public class BuyWindow extends Window {
         horizontalLayout.addChild(new Button("Back", new Runnable() {
             @Override
             public void run() {
-                resultCallback.handle("Exited by user", TextColor.ANSI.BLUE);
+                resultCallback.handle(null, TextColor.ANSI.BLUE);
             }
         }));
 
@@ -131,7 +131,7 @@ public class BuyWindow extends Window {
                             });
                             getTui().openWindow(resultScreen);
                         }
-                    }));
+                    }, user));
                 }
             }));
         }

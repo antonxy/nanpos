@@ -55,4 +55,8 @@ public class Window extends Component {
         TUI tui1 = getTui();
         return tui1 != null && tui1.getTopWindow() == this;
     }
+
+    public void onVisible() {
+
+    }
 }

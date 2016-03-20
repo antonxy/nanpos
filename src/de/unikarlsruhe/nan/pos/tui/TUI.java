@@ -22,6 +22,7 @@ public class TUI extends Component implements ClickListener {
         child.setParent(this);
         child.setTui(this);
         windowStack.add(child);
+        child.onVisible();
         layout();
         redraw();
     }
@@ -37,6 +38,7 @@ public class TUI extends Component implements ClickListener {
                 }
             }
         }
+        windowStack.getLast().onVisible();
         layout();
         redraw();
     }
