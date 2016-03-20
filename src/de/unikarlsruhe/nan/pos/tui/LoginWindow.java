@@ -1,5 +1,6 @@
 package de.unikarlsruhe.nan.pos.tui;
 
+import de.unikarlsruhe.nan.pos.CardReader;
 import de.unikarlsruhe.nan.pos.objects.User;
 
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +21,29 @@ public class LoginWindow extends Window {
             AsciiArt asciiArt = new AsciiArt();
             verticalLayout.addChild(asciiArt);
         }
+
+        final CardReader cardReader = CardReader.getInstance();
+        cardReader.setListener(new CardReader.CardReaderListener() {
+            @Override
+            public void onCardDetected(String cardnr, String uid) {
+                if (LoginWindow.this.isVisible()) {
+                    try {
+                        User userByCardnr = User.getUserByCardnr(cardnr);
+                        if (userByCardnr != null) {
+                            resultHandler.handle(userByCardnr, LoginWindow.this, "Success");
+                        } else {
+                            resultHandler.handle(null, LoginWindow.this, "Unknown card");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        resultHandler.handle(null, LoginWindow.this, "SQL Exception");
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                        resultHandler.handle(null, LoginWindow.this, "NoSuchAlgorithmException - WAT?");
+                    }
+                }
+            }
+        });
 
         final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
             @Override

@@ -5,6 +5,7 @@ import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.ClickListener;
+import de.unikarlsruhe.nan.pos.CardReader;
 
 import java.util.LinkedList;
 
@@ -38,6 +39,10 @@ public class TUI extends Component implements ClickListener {
         }
         layout();
         redraw();
+    }
+
+    public Window getTopWindow() {
+        return windowStack.getLast();
     }
 
     public void layout() {

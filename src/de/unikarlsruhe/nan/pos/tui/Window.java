@@ -50,4 +50,9 @@ public class Window extends Component {
     TerminalSize getPreferredSize() {
         return centralComponent.getPreferredSize();
     }
+
+    public boolean isVisible() {
+        TUI tui1 = getTui();
+        return tui1 != null && tui1.getTopWindow() == this;
+    }
 }

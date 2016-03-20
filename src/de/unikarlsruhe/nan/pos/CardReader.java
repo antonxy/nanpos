@@ -13,7 +13,16 @@ import java.util.LinkedList;
  * @author Anton Schirg
  */
 public class CardReader {
-    private LinkedList<CardReaderListener> listeners = new LinkedList<>();
+    private static CardReader instance = null;
+    public static CardReader getInstance() {
+        if (instance == null) {
+            instance = new CardReader();
+        }
+        return instance;
+    }
+
+
+    private CardReaderListener listener = null;
     public CardReader() {
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -27,7 +36,6 @@ public class CardReader {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    System.exit(100);
                 }
             }
         });
@@ -49,13 +57,17 @@ public class CardReader {
     }
 
     private void callListeners(String cardnr, String uid) {
-        for (CardReaderListener listener : listeners) {
+        if (listener != null) {
             listener.onCardDetected(cardnr, uid);
         }
     }
 
-    public void addListener(CardReaderListener listener) {
-        listeners.add(listener);
+    public void disableListener() {
+        listener = null;
+    }
+
+    public void setListener(CardReaderListener listener) {
+        this.listener = listener;
     }
 
     public interface CardReaderListener {
@@ -64,7 +76,7 @@ public class CardReader {
 
     public static void main(String[] args) {
         CardReader cardReader = new CardReader();
-        cardReader.addListener(new CardReaderListener() {
+        cardReader.setListener(new CardReaderListener() {
             @Override
             public void onCardDetected(String cardnr, String uid) {
                 System.out.println("Card nr:" + cardnr + " uid:" + uid);

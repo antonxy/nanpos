@@ -29,6 +29,22 @@ public class User {
 
     }
 
+	public static User getUserByCardnr(String cardnr) throws SQLException,
+			NoSuchAlgorithmException {
+		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
+				"SELECT * FROM users WHERE card=?");
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+		messageDigest.update(cardnr.getBytes());
+		prep.setString(1, byteArrayToHexString(messageDigest.digest()));
+		try (ResultSet res = prep.executeQuery()) {
+			if (res.next()) {
+				return new User(res);
+			}
+		}
+		return null;
+
+	}
+
     public User(ResultSet resSet) throws SQLException {
         this.id = resSet.getInt("id");
         this.operator = resSet.getBoolean("isop");
