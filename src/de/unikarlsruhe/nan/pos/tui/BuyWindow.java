@@ -115,6 +115,25 @@ public class BuyWindow extends Window {
                     }, false, "Select account to discharge"));
                 }
             }));
+
+            horizontalLayout.addChild(new Button("Add User", new Runnable() {
+                @Override
+                public void run() {
+                    getTui().openWindow(new CreateUserWindow(new CreateUserWindow.CreateUserResultHandler() {
+                        @Override
+                        public void handle(boolean success, final CreateUserWindow caller, String detailMessage) {
+                            final ResultScreen resultScreen = new ResultScreen(detailMessage, success ? TextColor.ANSI.GREEN : TextColor.ANSI.RED);
+                            resultScreen.setDoneCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    caller.close();
+                                }
+                            });
+                            getTui().openWindow(resultScreen);
+                        }
+                    }));
+                }
+            }));
         }
 
         PS2BarcodeScanner.getInstance().setBarcodeListener(new PS2BarcodeScanner.BarcodeListener() {

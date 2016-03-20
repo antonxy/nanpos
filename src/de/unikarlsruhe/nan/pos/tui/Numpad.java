@@ -13,10 +13,12 @@ public class Numpad extends Component {
     private final GridLayout gridLayout;
     private final Label label;
     private final boolean secure;
+    private String message;
     private String enteredText = "";
 
     public Numpad(final NumpadResultHandler resultHandler, boolean secure, String message) {
         this.secure = secure;
+        this.message = message;
         verticalLayout = new VerticalLayout();
         verticalLayout.setParent(this);
 
@@ -78,20 +80,28 @@ public class Numpad extends Component {
     }
 
     private void updateLabel() {
-        if (secure) {
-            String stars = "";
-            for (int i = 0; i < enteredText.length(); i++) {
-                stars += "*";
-            }
-            label.setText(stars);
+        if (enteredText.isEmpty()) {
+            label.setText(message);
         } else {
-            label.setText(enteredText);
+            if (secure) {
+                String stars = "";
+                for (int i = 0; i < enteredText.length(); i++) {
+                    stars += "*";
+                }
+                label.setText(stars);
+            } else {
+                label.setText(enteredText);
+            }
         }
     }
 
     public void clear() {
         enteredText = "";
         updateLabel();
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     @Override
