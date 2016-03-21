@@ -13,7 +13,7 @@ public class LoginWindow extends Window {
 
     private final CardReader.CardReaderListener cardReaderListener;
 
-    public LoginWindow(final LoginResultHandler resultHandler, boolean withAsciiArt, String message) {
+    public LoginWindow(final LoginResultHandler resultHandler, boolean withAsciiArt, String message, boolean cancelable) {
         CenterLayout centerLayout = new CenterLayout();
         setCentralComponent(centerLayout);
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -22,6 +22,11 @@ public class LoginWindow extends Window {
         if (withAsciiArt) {
             AsciiArt asciiArt = new AsciiArt();
             verticalLayout.addChild(asciiArt);
+        }
+
+        if (message != null) {
+            Label messageLabel = new Label(message);
+            verticalLayout.addChild(messageLabel);
         }
 
         final CardReader cardReader = CardReader.getInstance();
@@ -48,24 +53,14 @@ public class LoginWindow extends Window {
         };
         cardReader.setListener(cardReaderListener);
 
-        final Numpad numpad = new Numpad(new Numpad.NumpadResultHandler() {
-            @Override
-            public void handle(String enteredText, Numpad caller) {
-                caller.clear();
-                try {
-                    User userByPIN = User.getUserByPIN(enteredText);
-                    String detailMessage = userByPIN == null ? "Unknown user" : "Success";
-                    resultHandler.handle(userByPIN, LoginWindow.this, detailMessage);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    resultHandler.handle(null, LoginWindow.this, "SQL Exception");
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                    resultHandler.handle(null, LoginWindow.this, "NoSuchAlgorithmException - WAT?");
+        if (cancelable) {
+            verticalLayout.addChild(new Button("Cancel", new Runnable() {
+                @Override
+                public void run() {
+                    resultHandler.handle(null, LoginWindow.this, "Canceled");
                 }
-            }
-        }, true, message == null?"Login to account":message);
-        verticalLayout.addChild(numpad);
+            }));
+        }
     }
 
     public interface LoginResultHandler {

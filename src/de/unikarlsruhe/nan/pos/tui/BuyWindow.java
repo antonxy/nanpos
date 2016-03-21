@@ -84,7 +84,7 @@ public class BuyWindow extends Window {
                                 }, false));
                             }
                         }
-                    }, false, "Select account to recharge"));
+                    }, false, "Scan card to recharge", true));
                 }
             }));
 
@@ -112,7 +112,7 @@ public class BuyWindow extends Window {
                                 }, true));
                             }
                         }
-                    }, false, "Select account to discharge"));
+                    }, false, "Scan card to discharge", true));
                 }
             }));
 

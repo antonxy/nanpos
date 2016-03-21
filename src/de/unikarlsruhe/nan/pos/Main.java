@@ -79,7 +79,7 @@ public class Main {
 					tui.openWindow(resultScreen);
 				}
 			}
-		}, true, null);
+		}, true, "Scan card to log in", false);
 		tui.openWindow(loginWindow);
 
 		terminal.addResizeListener(new ResizeListener() {

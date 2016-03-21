@@ -29,7 +29,7 @@ public class ScanCardWindow extends Window {
         centerLayout.addChild(verticalLayout);
 
         verticalLayout.addChild(new Label("Scan card..."));
-        verticalLayout.addChild(new Button("No Card", new Runnable() {
+        verticalLayout.addChild(new Button("Cancel", new Runnable() {
             @Override
             public void run() {
                 listener.onCardDetected(null, null);

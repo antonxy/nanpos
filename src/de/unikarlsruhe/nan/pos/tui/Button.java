@@ -13,6 +13,8 @@ public class Button extends Component {
 
 	private String text;
 	private Runnable action;
+	private int xPadd = 10;
+	private int yPadd = 5;
 
 	public Button(String text) {
 		this(text, new Runnable() {
@@ -26,6 +28,13 @@ public class Button extends Component {
 	public Button(String text, Runnable action) {
 		this.text = text;
 		this.action = action;
+	}
+
+	public Button(String text, Runnable action, int xPadd, int yPadd) {
+		this.text = text;
+		this.action = action;
+		this.xPadd = xPadd;
+		this.yPadd = yPadd;
 	}
 
 	@Override
@@ -62,6 +71,6 @@ public class Button extends Component {
         for (String s : split) {
             maxlen = Math.max(maxlen, s.trim().length());
         }
-        return new TerminalSize(maxlen + 10, split.length + 5);
+        return new TerminalSize(maxlen + xPadd, split.length + yPadd);
 	}
 }

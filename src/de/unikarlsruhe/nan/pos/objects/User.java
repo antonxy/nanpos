@@ -10,24 +10,9 @@ import de.unikarlsruhe.nan.pos.DatabaseConnection;
 
 public class User {
     private int id;
+    private String name;
     private int balance;
     private boolean operator;
-
-    public static User getUserByPIN(String pin) throws SQLException,
-            NoSuchAlgorithmException {
-        PreparedStatement prep = DatabaseConnection.getInstance().prepare(
-                "SELECT * FROM users WHERE pin=?");
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-        messageDigest.update(pin.getBytes());
-        prep.setString(1, byteArrayToHexString(messageDigest.digest()));
-        try (ResultSet res = prep.executeQuery()) {
-            if (res.next()) {
-                return new User(res);
-            }
-        }
-        return null;
-
-    }
 
 	public static User getUserByCardnr(String cardnr) throws SQLException,
 			NoSuchAlgorithmException {
@@ -45,23 +30,22 @@ public class User {
 
 	}
 
-	public static void createUser(User operator, String pin, String cardnr) throws SQLException, NoSuchAlgorithmException {
+	public static void createUser(User operator, String name, String cardnr) throws SQLException, NoSuchAlgorithmException {
 		PreparedStatement prep = DatabaseConnection
 				.getInstance()
 				.prepare(
-						"INSERT INTO users (pin, card) VALUES(?, ?)");
+						"INSERT INTO users (name, card) VALUES(?, ?)");
+		prep.setString(1, name);
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-		messageDigest.update(pin.getBytes());
-		prep.setString(1, byteArrayToHexString(messageDigest.digest()));
-		MessageDigest messageDigest2 = MessageDigest.getInstance("SHA-1");
-		messageDigest2.update(cardnr.getBytes());
-		prep.setString(2, byteArrayToHexString(messageDigest2.digest()));
+		messageDigest.update(cardnr.getBytes());
+		prep.setString(2, byteArrayToHexString(messageDigest.digest()));
 		prep.execute();
 	}
 
     public User(ResultSet resSet) throws SQLException {
         this.id = resSet.getInt("id");
         this.operator = resSet.getBoolean("isop");
+        this.name = resSet.getString("name");
         PreparedStatement prep = DatabaseConnection.getInstance().prepare(
                 "SELECT sum(amount) as sum FROM revenues WHERE \"user\"=?");
         prep.setInt(1, id);
