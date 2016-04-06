@@ -13,8 +13,6 @@ import java.util.Objects;
  */
 public class CreateUserWindow extends Window {
 
-    String nameEntered;
-
     public CreateUserWindow(final CreateUserResultHandler resultHandler, final User operator) {
         CenterLayout centerLayout = new CenterLayout();
         setCentralComponent(centerLayout);
@@ -23,14 +21,14 @@ public class CreateUserWindow extends Window {
 
         final Keyboard keyboard = new Keyboard(new Keyboard.KeyboardResultHandler() {
             @Override
-            public void handle(String enteredText, Keyboard caller) {
+            public void handle(final String enteredText, Keyboard caller) {
                 caller.clear();
                 final ScanCardWindow scanCardWindow = new ScanCardWindow(new CardReader.CardReaderListener() {
                     @Override
                     public void onCardDetected(String cardnr, String uid) {
                         try {
                             if (cardnr != null) {
-                                User.createUser(operator, nameEntered, cardnr);
+                                User.createUser(operator, enteredText, cardnr);
                                 resultHandler.handle(true, CreateUserWindow.this, "Created user");
                             } else {
                                 resultHandler.handle(false, CreateUserWindow.this, "No card scanned");
