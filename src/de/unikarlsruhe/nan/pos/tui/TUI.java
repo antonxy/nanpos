@@ -1,16 +1,17 @@
 package de.unikarlsruhe.nan.pos.tui;
 
+import java.util.LinkedList;
+
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.ClickListener;
-import de.unikarlsruhe.nan.pos.CardReader;
-
-import java.util.LinkedList;
 
 public class TUI extends Component implements ClickListener {
     private Screen screen;
+
+    private long lastInputTime = System.currentTimeMillis();
 
     private LinkedList<Window> windowStack = new LinkedList<>();
 
@@ -31,7 +32,7 @@ public class TUI extends Component implements ClickListener {
         int i = windowStack.indexOf(window);
         if (i != -1) {
             if (i == 0) {
-                System.exit(0); //TODO
+                System.exit(0); // TODO
             } else {
                 while (windowStack.size() > i) {
                     windowStack.removeLast();
@@ -48,7 +49,8 @@ public class TUI extends Component implements ClickListener {
     }
 
     public void layout() {
-        layout(new TerminalRectangle(TerminalPosition.TOP_LEFT_CORNER, screen.getTerminalSize()));
+        layout(new TerminalRectangle(TerminalPosition.TOP_LEFT_CORNER,
+                screen.getTerminalSize()));
     }
 
     @Override
@@ -74,6 +76,11 @@ public class TUI extends Component implements ClickListener {
     @Override
     protected void onClick(TerminalPosition position) {
         windowStack.getLast().onClick(position);
+        this.lastInputTime = System.currentTimeMillis();
+    }
+
+    public long getLastInputTime() {
+        return lastInputTime;
     }
 
     @Override
