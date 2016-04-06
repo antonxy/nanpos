@@ -23,26 +23,30 @@ public class CreateUserWindow extends Window {
             @Override
             public void handle(final String enteredText, Keyboard caller) {
                 caller.clear();
-                final ScanCardWindow scanCardWindow = new ScanCardWindow(new CardReader.CardReaderListener() {
-                    @Override
-                    public void onCardDetected(String cardnr, String uid) {
-                        try {
-                            if (cardnr != null) {
-                                User.createUser(operator, enteredText, cardnr);
-                                resultHandler.handle(true, CreateUserWindow.this, "Created user");
-                            } else {
-                                resultHandler.handle(false, CreateUserWindow.this, "No card scanned");
+                if (enteredText != null) {
+                    final ScanCardWindow scanCardWindow = new ScanCardWindow(new CardReader.CardReaderListener() {
+                        @Override
+                        public void onCardDetected(String cardnr, String uid) {
+                            try {
+                                if (cardnr != null) {
+                                    User.createUser(operator, enteredText, cardnr);
+                                    resultHandler.handle(true, CreateUserWindow.this, "Created user");
+                                } else {
+                                    resultHandler.handle(false, CreateUserWindow.this, "No card scanned");
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                resultHandler.handle(false, CreateUserWindow.this, "SQL Exception");
+                            } catch (NoSuchAlgorithmException e) {
+                                e.printStackTrace();
+                                resultHandler.handle(false, CreateUserWindow.this, "NoSuchAlgorithmException - WUT?");
                             }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                            resultHandler.handle(false, CreateUserWindow.this, "SQL Exception");
-                        } catch (NoSuchAlgorithmException e) {
-                            e.printStackTrace();
-                            resultHandler.handle(false, CreateUserWindow.this, "NoSuchAlgorithmException - WUT?");
                         }
-                    }
-                });
-                getTui().openWindow(scanCardWindow);
+                    });
+                    getTui().openWindow(scanCardWindow);
+                } else {
+                    resultHandler.handle(false,  CreateUserWindow.this, "Canceled");
+                }
             }
         }, "Enter new user name");
         verticalLayout.addChild(keyboard);
