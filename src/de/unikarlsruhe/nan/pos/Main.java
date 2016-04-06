@@ -43,44 +43,56 @@ public class Main {
 
 		terminal.addClickListener(tui);
 
-		final LoginWindow loginWindow = new LoginWindow(new LoginWindow.LoginResultHandler() {
-			@Override
-			public void handle(User user, LoginWindow caller, String detailMessage) {
-				if (user != null) {
-					final BuyWindow buyWindow = RecyclingBuyWindowFactoryBuilder.build().factorarte(user);
-					buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
-						@Override
-						public void handle(String result, TextColor color) {
-							if (result != null) {
-								ResultScreen resultScreen = new ResultScreen(
-										result, color);
-								resultScreen.setDoneCallback(new Runnable() {
-									@Override
-									public void run() {
-										buyWindow.close();
-									}
-								});
-								tui.openWindow(resultScreen);
-							} else {
-								tui.closeWindow(buyWindow);
+		boolean dbConnectionValid = false;
+		try {
+			dbConnectionValid = DatabaseConnection.getInstance().getConnection().isValid(2000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (!dbConnectionValid) {
+			ResultScreen resultScreen = new ResultScreen("Could not connect to DB", TextColor.ANSI.RED);
+			tui.openWindow(resultScreen);
+		} else {
+			final LoginWindow loginWindow = new LoginWindow(new LoginWindow.LoginResultHandler() {
+				@Override
+				public void handle(User user, LoginWindow caller, String detailMessage) {
+					if (user != null) {
+						final BuyWindow buyWindow = RecyclingBuyWindowFactoryBuilder.build().factorarte(user);
+						buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
+							@Override
+							public void handle(String result, TextColor color) {
+								if (result != null) {
+									ResultScreen resultScreen = new ResultScreen(
+											result, color);
+									resultScreen.setDoneCallback(new Runnable() {
+										@Override
+										public void run() {
+											buyWindow.close();
+										}
+									});
+									tui.openWindow(resultScreen);
+								} else {
+									tui.closeWindow(buyWindow);
+								}
 							}
-						}
-					});
-					tui.openWindow(buyWindow);
-				} else {
-					final ResultScreen resultScreen = new ResultScreen(detailMessage,
-							TextColor.ANSI.RED);
-					resultScreen.setDoneCallback(new Runnable() {
-						@Override
-						public void run() {
-							resultScreen.close();
-						}
-					});
-					tui.openWindow(resultScreen);
+						});
+						tui.openWindow(buyWindow);
+					} else {
+						final ResultScreen resultScreen = new ResultScreen(detailMessage,
+								TextColor.ANSI.RED);
+						resultScreen.setDoneCallback(new Runnable() {
+							@Override
+							public void run() {
+								resultScreen.close();
+							}
+						});
+						tui.openWindow(resultScreen);
+					}
 				}
-			}
-		}, true, "Scan card to log in", false);
-		tui.openWindow(loginWindow);
+			}, true, "Scan card to log in", false);
+			tui.openWindow(loginWindow);
+		}
 
 		terminal.addResizeListener(new ResizeListener() {
 			@Override
