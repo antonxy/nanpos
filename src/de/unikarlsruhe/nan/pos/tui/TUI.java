@@ -61,6 +61,7 @@ public class TUI extends Component implements ClickListener {
     @Override
     public void redraw() {
         windowStack.getLast().redraw();
+        this.lastInputTime = System.currentTimeMillis();
     }
 
     @Override
