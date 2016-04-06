@@ -32,12 +32,13 @@ public class LoginWindow extends Window {
         final CardReader cardReader = CardReader.getInstance();
         cardReaderListener = new CardReader.CardReaderListener() {
             @Override
-            public void onCardDetected(String cardnr, String uid) {
+            public boolean onCardDetected(String cardnr, String uid) {
                 if (LoginWindow.this.isVisible()) {
                     try {
                         User userByCardnr = User.getUserByCardnr(cardnr);
                         if (userByCardnr != null) {
                             resultHandler.handle(userByCardnr, LoginWindow.this, "Success");
+                            return true;
                         } else {
                             resultHandler.handle(null, LoginWindow.this, "Unknown card");
                         }
@@ -48,6 +49,9 @@ public class LoginWindow extends Window {
                         e.printStackTrace();
                         resultHandler.handle(null, LoginWindow.this, "NoSuchAlgorithmException - WAT?");
                     }
+                    return false;
+                } else {
+                    return false;
                 }
             }
         };

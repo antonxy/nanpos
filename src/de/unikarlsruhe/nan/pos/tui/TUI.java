@@ -7,6 +7,7 @@ import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.ClickListener;
+import de.unikarlsruhe.nan.pos.CardReader;
 
 public class TUI extends Component implements ClickListener {
     private Screen screen;
@@ -29,6 +30,7 @@ public class TUI extends Component implements ClickListener {
     }
 
     public void closeWindow(Window window) {
+        CardReader.getInstance().disableListener();
         int i = windowStack.indexOf(window);
         if (i != -1) {
             if (i == 0) {

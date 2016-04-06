@@ -58,7 +58,9 @@ public class CardReader {
 
     private void callListeners(String cardnr, String uid) {
         if (listener != null) {
-            listener.onCardDetected(cardnr, uid);
+            if (listener.onCardDetected(cardnr, uid)) {
+                disableListener();
+            }
         }
     }
 
@@ -71,15 +73,19 @@ public class CardReader {
     }
 
     public interface CardReaderListener {
-        public void onCardDetected(String cardnr, String uid);
+        /**
+         * @return valid scan - if true listener will be unregistered
+         */
+        public boolean onCardDetected(String cardnr, String uid);
     }
 
     public static void main(String[] args) {
         CardReader cardReader = new CardReader();
         cardReader.setListener(new CardReaderListener() {
             @Override
-            public void onCardDetected(String cardnr, String uid) {
+            public boolean onCardDetected(String cardnr, String uid) {
                 System.out.println("Card nr:" + cardnr + " uid:" + uid);
+                return true;
             }
         });
     }

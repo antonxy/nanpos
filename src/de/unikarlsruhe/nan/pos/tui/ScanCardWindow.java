@@ -38,9 +38,11 @@ public class ScanCardWindow extends Window {
 
         CardReader.getInstance().setListener(new CardReader.CardReaderListener() {
             @Override
-            public void onCardDetected(String cardnr, String uid) {
+            public boolean onCardDetected(String cardnr, String uid) {
                 if (ScanCardWindow.this.isVisible()) {
-                    listener.onCardDetected(cardnr, uid);
+                    return listener.onCardDetected(cardnr, uid);
+                } else {
+                    return false;
                 }
             }
         });

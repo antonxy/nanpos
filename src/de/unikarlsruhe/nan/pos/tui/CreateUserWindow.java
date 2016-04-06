@@ -26,11 +26,12 @@ public class CreateUserWindow extends Window {
                 if (enteredText != null) {
                     final ScanCardWindow scanCardWindow = new ScanCardWindow(new CardReader.CardReaderListener() {
                         @Override
-                        public void onCardDetected(String cardnr, String uid) {
+                        public boolean onCardDetected(String cardnr, String uid) {
                             try {
                                 if (cardnr != null) {
                                     User.createUser(operator, enteredText, cardnr);
                                     resultHandler.handle(true, CreateUserWindow.this, "Created user");
+                                    return true;
                                 } else {
                                     resultHandler.handle(false, CreateUserWindow.this, "No card scanned");
                                 }
@@ -41,6 +42,7 @@ public class CreateUserWindow extends Window {
                                 e.printStackTrace();
                                 resultHandler.handle(false, CreateUserWindow.this, "NoSuchAlgorithmException - WUT?");
                             }
+                            return false;
                         }
                     });
                     getTui().openWindow(scanCardWindow);
