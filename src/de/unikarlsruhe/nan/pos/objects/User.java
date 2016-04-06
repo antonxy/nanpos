@@ -14,33 +14,32 @@ public class User {
     private int balance;
     private boolean operator;
 
-	public static User getUserByCardnr(String cardnr) throws SQLException,
-			NoSuchAlgorithmException {
-		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
-				"SELECT * FROM users WHERE card=?");
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-		messageDigest.update(cardnr.getBytes());
-		prep.setString(1, byteArrayToHexString(messageDigest.digest()));
-		try (ResultSet res = prep.executeQuery()) {
-			if (res.next()) {
-				return new User(res);
-			}
-		}
-		return null;
+    public static User getUserByCardnr(String cardnr) throws SQLException,
+            NoSuchAlgorithmException {
+        PreparedStatement prep = DatabaseConnection.getInstance().prepare(
+                "SELECT * FROM users WHERE card=?");
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+        messageDigest.update(cardnr.getBytes());
+        prep.setString(1, byteArrayToHexString(messageDigest.digest()));
+        try (ResultSet res = prep.executeQuery()) {
+            if (res.next()) {
+                return new User(res);
+            }
+        }
+        return null;
 
-	}
+    }
 
-	public static void createUser(User operator, String name, String cardnr) throws SQLException, NoSuchAlgorithmException {
-		PreparedStatement prep = DatabaseConnection
-				.getInstance()
-				.prepare(
-						"INSERT INTO users (name, card) VALUES(?, ?)");
-		prep.setString(1, name);
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-		messageDigest.update(cardnr.getBytes());
-		prep.setString(2, byteArrayToHexString(messageDigest.digest()));
-		prep.execute();
-	}
+    public static void createUser(User operator, String name, String cardnr)
+            throws SQLException, NoSuchAlgorithmException {
+        PreparedStatement prep = DatabaseConnection.getInstance().prepare(
+                "INSERT INTO users (name, card) VALUES(?, ?)");
+        prep.setString(1, name);
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+        messageDigest.update(cardnr.getBytes());
+        prep.setString(2, byteArrayToHexString(messageDigest.digest()));
+        prep.execute();
+    }
 
     public User(ResultSet resSet) throws SQLException {
         this.id = resSet.getInt("id");
@@ -98,6 +97,10 @@ public class User {
             result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
         }
         return result;
+    }
+
+    public String getName() {
+        return name;
     }
 
 }
