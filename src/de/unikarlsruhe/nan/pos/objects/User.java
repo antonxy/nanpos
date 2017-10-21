@@ -94,18 +94,15 @@ public class User {
     }
 
     public synchronized boolean buy(Product p) throws SQLException {
-        if (balance + 400 >= p.getPrice()) {
-            PreparedStatement prep = DatabaseConnection
-                    .getInstance()
-                    .prepare(
-                            "INSERT INTO revenues (\"user\", amount, product) VALUES(?, ?, ?)");
-            prep.setInt(1, id);
-            prep.setInt(2, -1 * p.getPrice());
-            prep.setInt(3, p.getId());
-            prep.execute();
-            return true;
-        }
-        return false;
+        PreparedStatement prep = DatabaseConnection
+                .getInstance()
+                .prepare(
+                        "INSERT INTO revenues (\"user\", amount, product) VALUES(?, ?, ?)");
+        prep.setInt(1, id);
+        prep.setInt(2, -1 * p.getPrice());
+        prep.setInt(3, p.getId());
+        prep.execute();
+        return true;
     }
 
     private static String byteArrayToHexString(byte[] b) {
