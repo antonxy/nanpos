@@ -46,10 +46,12 @@ public class LoginWindow extends Window {
                     try {
                         User userByCardnr = User.getUserByCardnr(cardnr);
                         if (userByCardnr != null) {
-                            resultHandler.handle(userByCardnr, LoginWindow.this, "Success");
                             cardReader.successAnimation();
+                            cardReader.disableListener();
+                            resultHandler.handle(userByCardnr, LoginWindow.this, "Success");
                             return true;
                         } else {
+                            cardReader.disableListener();
                             resultHandler.handle(null, LoginWindow.this, "Unknown card");
                             //cardReader.failAnimation();
                         }
