@@ -66,6 +66,6 @@ public class GridLayout extends Container {
             }
         }
         int rows = (int) Math.ceil(((double) children.size()) / columns);
-        return new TerminalSize(columns * colWidth + (columns - 1) * (colMargin + 1), rows * rowHeight + (rows - 1) * (rowMargin + 1));
+        return new TerminalSize(columns * colWidth + (columns - 1) * (colMargin + 1), rows * rowHeight + Math.max(0, (rows - 1) * (rowMargin + 1)));
     }
 }
