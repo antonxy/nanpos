@@ -18,9 +18,26 @@ public class User {
             NoSuchAlgorithmException {
         PreparedStatement prep = DatabaseConnection.getInstance().prepare(
                 "SELECT * FROM users WHERE card=?");
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
         messageDigest.update(cardnr.getBytes());
         prep.setString(1, byteArrayToHexString(messageDigest.digest()));
+        try (ResultSet res = prep.executeQuery()) {
+            if (res.next()) {
+                return new User(res);
+            }
+        }
+        return null;
+
+    }
+
+    public static User getUserByNameAndPin(String name, String pin) throws SQLException,
+            NoSuchAlgorithmException {
+        PreparedStatement prep = DatabaseConnection.getInstance().prepare(
+                "SELECT * FROM users WHERE name=? AND pin=?");
+        prep.setString(1, name);
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        messageDigest.update(pin.getBytes());
+        prep.setString(2, byteArrayToHexString(messageDigest.digest()));
         try (ResultSet res = prep.executeQuery()) {
             if (res.next()) {
                 return new User(res);
@@ -35,7 +52,7 @@ public class User {
         PreparedStatement prep = DatabaseConnection.getInstance().prepare(
                 "INSERT INTO users (name, card) VALUES(?, ?)");
         prep.setString(1, name);
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
         messageDigest.update(cardnr.getBytes());
         prep.setString(2, byteArrayToHexString(messageDigest.digest()));
         prep.execute();

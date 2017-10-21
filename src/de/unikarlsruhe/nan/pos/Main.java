@@ -90,7 +90,7 @@ public class Main {
 						tui.openWindow(resultScreen);
 					}
 				}
-			}, true, "Scan card to log in", false);
+			}, true, "log in", false);
 			tui.openWindow(loginWindow);
 		}
 
