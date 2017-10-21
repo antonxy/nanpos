@@ -228,12 +228,12 @@ public class BuyWindow extends Window {
                 String balance = "ERROR";
                 try {
                     user.reloadBalance();
-                    balance = Integer.toString(user.getBalance());
+                    balance = formatPrice(user.getBalance());
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
                 resultCallback.handle(
-                        success ? "Big success - you have bought the product\nNew Balance: " + balance + " ct"
+                        success ? "Big success - you have bought the product\nNew Balance: " + balance
                                 : "Fatal error - could not buy the product",
                         success);
             } else {
