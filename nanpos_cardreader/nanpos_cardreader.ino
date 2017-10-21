@@ -96,7 +96,9 @@ void loop(){
     if(Serial.available()) {
         execute_command(Serial.read());    
     }
-    check_card();
+    if(listening) {
+        check_card();
+    }
     // fancy ws2812 stuff
     if(millis() - last_frame > 25) {
         if(!play_animation) {
@@ -221,12 +223,10 @@ bool check_card(){
     hasData = 1;
 
     if(hasData){
-        if(listening) {
-            digitalWrite(BUZZ,1);
-            sendResult();
-            delay(50);
-            digitalWrite(BUZZ,0);
-        }
+        digitalWrite(BUZZ,1);
+        sendResult();
+        delay(50);
+        digitalWrite(BUZZ,0);
     }
 
     // Halt PICC
