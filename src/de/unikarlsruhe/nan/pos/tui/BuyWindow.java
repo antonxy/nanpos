@@ -32,7 +32,7 @@ public class BuyWindow extends Window {
         verticalLayout = new VerticalLayout();
         centerLayout.addChild(verticalLayout);
 
-        balanceLabel = new Label("Balance: " + formatPrice(user.getBalance()));
+        balanceLabel = new Label("User: " + user.getName() + " | " + "Balance: " + formatPrice(user.getBalance()));
         verticalLayout.addChild(balanceLabel);
         GridLayout gridLayout = new GridLayout(4);
         verticalLayout.addChild(gridLayout);
