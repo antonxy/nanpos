@@ -47,6 +47,20 @@ public class User {
 
     }
 
+    public static User getUserByName(String name) throws SQLException,
+            NoSuchAlgorithmException {
+        PreparedStatement prep = DatabaseConnection.getInstance().prepare(
+                "SELECT * FROM users WHERE name=?");
+        prep.setString(1, name);
+        try (ResultSet res = prep.executeQuery()) {
+            if (res.next()) {
+                return new User(res);
+            }
+        }
+        return null;
+
+    }
+
     public static void createUser(User operator, String name, String cardnr)
             throws SQLException, NoSuchAlgorithmException {
         PreparedStatement prep = DatabaseConnection.getInstance().prepare(

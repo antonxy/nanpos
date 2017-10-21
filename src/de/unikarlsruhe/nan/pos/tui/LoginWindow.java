@@ -14,8 +14,11 @@ public class LoginWindow extends Window {
 
     private final CardReader.CardReaderListener cardReaderListener;
     private final LoginResultHandler resultHandler;
+    private Button cancelButton = null;
+    private boolean check_pin;
 
-    public LoginWindow(final LoginResultHandler resultHandler, boolean withAsciiArt, String action, boolean cancelable) {
+    public LoginWindow(final LoginResultHandler resultHandler, boolean withAsciiArt, String action, boolean cancelable, boolean check_pin) {
+        this.check_pin = check_pin;
         CenterLayout centerLayout = new CenterLayout();
         setCentralComponent(centerLayout);
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -64,18 +67,25 @@ public class LoginWindow extends Window {
         cardReader.setListener(cardReaderListener);
 
         if (cancelable) {
-            verticalLayout.addChild(new Button("Cancel", new Runnable() {
+            cancelButton = new Button("Cancel", new Runnable() {
                 @Override
                 public void run() {
                     resultHandler.handle(null, LoginWindow.this, "Canceled");
                 }
-            }));
+            });
+            verticalLayout.addChild(cancelButton);
         }
         this.resultHandler = resultHandler;
     }
 
     @Override
     protected void onClick(TerminalPosition position) {
+        //Can click anywhere on screen but button
+        if (cancelButton != null && cancelButton.getPosition().isInside(position)) {
+            super.onClick(position);
+            return;
+        }
+
         final Window kbdWindow = new Window();
         CenterLayout centerLayout = new CenterLayout();
         Keyboard userKbd = new Keyboard(new Keyboard.KeyboardResultHandler() {
@@ -83,33 +93,50 @@ public class LoginWindow extends Window {
             public void handle(final String userText, Keyboard caller) {
                 kbdWindow.close();
                 if (userText != null) {
-                    final Window pinWindow = new Window();
-                    CenterLayout centerLayout = new CenterLayout();
-                    Numpad pinNpd = new Numpad(new Numpad.NumpadResultHandler() {
-                        @Override
-                        public void handle(String pinText, Numpad caller) {
-                            pinWindow.close();
-                            if (pinText != null) {
-                                try {
-                                    User userByName = User.getUserByNameAndPin(userText, pinText);
-                                    if (userByName != null) {
-                                        resultHandler.handle(userByName, LoginWindow.this, "Success");
-                                    } else {
-                                        resultHandler.handle(null, LoginWindow.this, "Unknown user or wrong PIN");
+                    if (check_pin) {
+                        final Window pinWindow = new Window();
+                        CenterLayout centerLayout = new CenterLayout();
+                        Numpad pinNpd = new Numpad(new Numpad.NumpadResultHandler() {
+                            @Override
+                            public void handle(String pinText, Numpad caller) {
+                                pinWindow.close();
+                                if (pinText != null) {
+                                    try {
+                                        User userByName = User.getUserByNameAndPin(userText, pinText);
+                                        if (userByName != null) {
+                                            resultHandler.handle(userByName, LoginWindow.this, "Success");
+                                        } else {
+                                            resultHandler.handle(null, LoginWindow.this, "Unknown user or wrong PIN");
+                                        }
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                        resultHandler.handle(null, LoginWindow.this, "SQL Exception");
+                                    } catch (NoSuchAlgorithmException e) {
+                                        e.printStackTrace();
+                                        resultHandler.handle(null, LoginWindow.this, "NoSuchAlgorithmException - WAT?");
                                     }
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
-                                    resultHandler.handle(null, LoginWindow.this, "SQL Exception");
-                                } catch (NoSuchAlgorithmException e) {
-                                    e.printStackTrace();
-                                    resultHandler.handle(null, LoginWindow.this, "NoSuchAlgorithmException - WAT?");
                                 }
                             }
+                        }, true, "PIN");
+                        centerLayout.addChild(pinNpd);
+                        pinWindow.setCentralComponent(centerLayout);
+                        getTui().openWindow(pinWindow);
+                    } else {
+                        try {
+                            User userByName = User.getUserByName(userText);
+                            if (userByName != null) {
+                                resultHandler.handle(userByName, LoginWindow.this, "Success");
+                            } else {
+                                resultHandler.handle(null, LoginWindow.this, "Unknown user");
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            resultHandler.handle(null, LoginWindow.this, "SQL Exception");
+                        } catch (NoSuchAlgorithmException e) {
+                            e.printStackTrace();
+                            resultHandler.handle(null, LoginWindow.this, "NoSuchAlgorithmException - WAT?");
                         }
-                    }, true, "PIN");
-                    centerLayout.addChild(pinNpd);
-                    pinWindow.setCentralComponent(centerLayout);
-                    getTui().openWindow(pinWindow);
+                    }
                 }
             }
         }, "Username");

@@ -98,7 +98,7 @@ public class BuyWindow extends Window {
                                                                 }, false));
                                             }
                                         }
-                                    }, false, "recharge", true));
+                                    }, false, "recharge", true, false));
                 }
             }));
 
@@ -137,7 +137,7 @@ public class BuyWindow extends Window {
                                                                 }, true));
                                             }
                                         }
-                                    }, false, "discharge", true));
+                                    }, false, "discharge", true, false));
                 }
             }));
 

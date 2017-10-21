@@ -32,6 +32,14 @@ public class RechargeWindow extends Window {
                     getTui().openWindow(resultScreen);
                 } catch (NumberFormatException | SQLException e) {
                     e.printStackTrace();
+                    ResultScreen resultScreen = new ResultScreen("Error", TextColor.ANSI.RED);
+                    resultScreen.setDoneCallback(new Runnable() {
+                        @Override
+                        public void run() {
+                            doneCallback.run();
+                        }
+                    });
+                    getTui().openWindow(resultScreen);
                 }
             }
         }, false, message);

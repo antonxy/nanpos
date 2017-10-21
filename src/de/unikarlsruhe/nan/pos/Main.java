@@ -90,7 +90,7 @@ public class Main {
 						tui.openWindow(resultScreen);
 					}
 				}
-			}, true, "log in", false);
+			}, true, "log in", false, true);
 			tui.openWindow(loginWindow);
 		}
 
