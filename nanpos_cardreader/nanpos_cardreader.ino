@@ -2,12 +2,15 @@
 #include <SPI.h>
 #include <MFRC522.h>
 
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+  #include <avr/power.h>
+#endif
+
 #define PARAMS_MAX_LENGTH 128
-#define LED_R 2 // 8
-#define LED_G 3 // 4
 #define BUZZ 5  // 6
-#define DOOR 4 // 5
 #define RXMODE_PIN 6 //7
+#define WS2812_PIN 8 // FIXME!
 
 #define SS_PIN 10 // PB6
 #define RST_PIN 9 // PB5
@@ -18,13 +21,9 @@
 
 //#define DEBUG
 
-// Fitnessraum = 2, Kellertuer = 1
-uint8_t nid = 1;
 
-// set to Serial1 on Leonardo, Serial on Uno etc.
-#define SerialC Serial
-
-
+// WS2812
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(8, WS2812_PIN, NEO_GRB + NEO_KHZ800);
 /* define operating mode
  *
  * 0: idle
@@ -42,14 +41,8 @@ bool receiveDone = 0;
 bool sendFlag = 0;
 bool receiveOverflow = 0;
 
-String readBuffer;
-String command;
-
 
 // Definitions for RFID
-
-
-
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 
 // Prepare key - all keys are set to FFFFFFFFFFFFh at chip delivery from the factory.
@@ -67,18 +60,20 @@ char cardnr[13] = {0,0,0,0, 0,0,0,0, 0,0,0,0 ,0}; // 13 due to string converion 
 void setup(){
     // start serial port at 9600 bps and wait for port to open:
     Serial.begin(115200);
-    SerialC.begin(115200);
     delay(50);
     SPI.begin();			// Init SPI bus
 	mfrc522.PCD_Init();	// Init MFRC522 card
 	Serial.println("Scan Card to see UID and Card Nr");
 
-    pinMode(LED_R, OUTPUT);   //
-    pinMode(LED_G, OUTPUT);   //
     pinMode(BUZZ, OUTPUT);   //
-    pinMode(DOOR, OUTPUT);   //
     pinMode(RXMODE_PIN, OUTPUT);
     //establishContact();  // send a byte to establish contact until receiver responds
+      #if defined (__AVR_ATtiny85__)
+    if (F_CPU == 16000000) clock_prescale_set(clock_div_1);
+  #endif
+  // End of trinket special code
+    strip.begin();
+    strip.show();
 }
 
 uint8_t b = 0;
@@ -86,127 +81,108 @@ uint32_t readTime = 0;
 
 bool checkId = 0;
 
-byte blinkmask_r = 33; // LED red
-byte blinkmask_g = 18; // LED green
-byte blinkmask_b = 0; // Buzzer
-byte blinkmask_d = 0; // Door openener
-uint8_t blinkmask_speed = 1;
-
 unsigned long last_check = 0;
-unsigned long blinkmask_override = 0;
 
-/* 
- * SerialCommHelper: 
- * @return bool: true if data received, false if not.
- */
-bool SerialComHelper(){
-    bool isReceivingData = false;
-    if(SerialC.available() > 0) {
-        // get incoming byte:
-        inByte = SerialC.read();
-        //SerialC << inByte;
-
-        if(receiving){
-            bool timeout = (readTime+500) < millis();
-            timeout = 0;
-            if(readBuffer.length() > 128 || inByte == '\n' || inByte == '\r' || inByte == '|' || inByte == 13 || timeout){
-                // abort
-                receiving = 0;
-                receiveOverflow = (readBuffer.length() > 128) ? 1:0;
-                receiveDone = 1;
-                readTime = 0;
-                if(timeout){
-                    //Serial << "receive timed out "<< (millis() - readTime) << " "<<millis()<<endl;
-                    // clear
-                    receiveDone = 0;
-                }
-                //SerialC<<endl;
-                if(mode == 2) mode = check_command(); // needed here if trailing slash is forgotten
-
-                //Serial << "end receiving "<<timeout<<endl;
-            }else{
-
-                // check command (before node-id check to avoid early termination
-                if(mode == 2){
-                    if(inByte == '/'){
-                        readBuffer = "";
-                        mode = check_command();
-
-                    }else command += inByte;
-                }
-
-                // check if node id
-                if(checkId && inByte == '/'){
-                    //Serial << "UID is: "<<readBuffer.toInt()<<"="<<nid<<endl;
-                    uint8_t called_nid = readBuffer.toInt();
-                    checkId = 0;
-                    readBuffer = "";
-                    mode = 2;
-                    if(called_nid != nid){
-                        //Serial << "UID is: "<<called_nid<<"="<<nid<<endl;
-                        receiving = 0;
-                        receiveDone = 0;
-                        return false; // data is not for us, ignore.
-                    }
-                }
-
-                readBuffer += inByte;
-            }
-        }else{ // not receiving, check for command start '$'
-            if(inByte != '$') return false;
-            // start receiving command;
-            mode = 1;
-            receiving = 1;
-            readBuffer = "";
-            receiveDone = 0;
-            receiveOverflow = 0;
-            readTime = millis();
-            checkId = 1;
-            command = "";
-            //Serial << "Start capturing data "<<readTime<<endl;
-        }
-        isReceivingData = true;
-    }
-    if(receiveDone){
-        // parse
-
-        // set RS485 driver to send
-        digitalWrite(RXMODE_PIN,1);
-        delay(2);
-        if(!execute_command()){ // execute command prints it's own result
-            SerialC << "{\"error\":1}"<<endl;
-        }
-        // set RS485 driver back to receive
-        delay(10);
-        digitalWrite(RXMODE_PIN, 0);
-
-        //Serial << "Received command: "<<command << " with params "<<readBuffer <<endl;
-
-        receiveDone = 0;
-    }
-    return isReceivingData;
-}
+// WS2812 state
+int led_frame = 0;
+long last_frame = 0;
+bool listening = false;
+bool play_animation = false;
+int animation = -1; // 1 = Success, 2 = Fail
+int anim_start_frame = 0;
 
 void loop(){
     // Check for Serial input data, if not receiving check card.
-    if(!SerialComHelper()) check_card();
+    if(Serial.available()) {
+        execute_command(Serial.read());    
+    }
+    check_card();
+    // fancy ws2812 stuff
+    if(millis() - last_frame > 25) {
+        if(!play_animation) {
+            for(int i=0; i<strip.numPixels(); i++) {
+                if(listening) {
+                    strip.setPixelColor(i, Wheel((i*10+led_frame) & 255));
+                    led_frame += 1;
+                } else {
+                    strip.setPixelColor(i, Wheel((i+led_frame/2) & 255));
+                }
+            }
+        } else {
+            draw_animation();
+        }
+        strip.show();
+        ++led_frame;
+        last_frame = millis();
+    }
+}
 
-    // led blinks
-    blinkLedsHelper();
+void draw_animation() {
+    int frame = led_frame - anim_start_frame;
+    int num_pix = strip.numPixels();
+    if(num_pix%2) {
+        num_pix++;
+    }
+    switch(animation) {
+        case 1:
+            for(int i = -num_pix/2; i<num_pix/2; ++i) {
+                if(i == 0 && strip.numPixels()%2) {
+                   continue;
+                }
+                int real_i = i;
+                if(i >= 0 && strip.numPixels()%2) {
+                    real_i--;
+                }
+                strip.setPixelColor(real_i+num_pix/2, strip.Color(0, max(0, min(255,abs(i*127+40)-127*num_pix/2+frame*24)),0));
+            }
+            if(frame == 60) {
+                play_animation = false;
+            }     
+            return;
+        case 2:
+            for(int i = -num_pix/2; i<num_pix/2; ++i) {
+                if(i == 0 && strip.numPixels()%2) {
+                   continue;
+                }
+                int real_i = i;
+                if(i >= 0 && strip.numPixels()%2) {
+                    real_i--;
+                }
+                strip.setPixelColor(real_i+num_pix/2, strip.Color(max(0, min(255,-abs(i*127+40)+frame*24)),0,0));
+            }
+            if(frame == 60) {
+                play_animation = false;
+            }     
+        default:
+            return;
+    }
+}
+
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85) {
+    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  if(WheelPos < 170) {
+    WheelPos -= 85;
+    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+  WheelPos -= 170;
+  return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
 
 void sendResult(){
-  SerialC << "{\"check_result\":{\"node\":"<<nid<<",\"hasData\":"<<(int)hasData;
   if(hasData){
-    SerialC <<",\"cardnr\":\""<<cardnr<<"\",\"uid\":\"";
+    Serial <<"{\"check_result\": {\"cardnr\":\""<<cardnr<<"\",\"uid\":\"";
     for(byte i=0;i < 4; i++){
-      SerialC.print(uid[i] < 0x10 ? "0" : "");
-      SerialC.print(uid[i],HEX);
+      Serial.print(uid[i] < 0x10 ? "0" : "");
+      Serial.print(uid[i],HEX);
     }
-    SerialC << "\"";
-    //hasData = 0;
+    Serial << "\"";
   }
-  SerialC << "}}"<<endl;
+  Serial << "}}"<<endl;
 }
 
 bool check_card(){
@@ -245,16 +221,12 @@ bool check_card(){
     hasData = 1;
 
     if(hasData){
-        blinkmask_override = millis()+10000;
-        blinkmask_r = 33;
-        blinkmask_g = 18;
-        blinkmask_b = 0;
-        blinkmask_speed = 1;
-        
-        digitalWrite(BUZZ,1);
-        sendResult();
-        delay(50);
-        digitalWrite(BUZZ,0);
+        if(listening) {
+            digitalWrite(BUZZ,1);
+            sendResult();
+            delay(50);
+            digitalWrite(BUZZ,0);
+        }
     }
 
     // Halt PICC
@@ -312,104 +284,37 @@ boolean readKitCardNumber(){
 }
 
 
-/*
- * Serial Comm Funtions
- */
-
-uint8_t check_command(){
-    if(command == "check") return 4; // no params
-    if(command == "setMode") return 3; // params
-    if(command == "confirm") return 4;
-    if(command == "deny") return 4;
-    if(command == "clear") return 4;
-    return 0;
-}
 void reset_input(){
     receiving = 0;
     sendFlag = 0;
     hasData = 0;
     //params_overflow = 0;
-    readBuffer = "";
-    command = "";
 }
 
-
-
-bool execute_command(){
-    if(command == "check"){
-        sendResult();
-        last_check = millis();
-        return 1;
-    }
-    if(command == "confirm"){
-        // set blinking
-        SerialC << "{\"check_result\":{\"node\":"<<nid<<",\"hasData\":"<<(int)hasData<<"}}"<<endl;
-        hasData = 0;
-        //blink leds
-        blinkmask_override = millis()+1200;
-        blinkmask_g = 0xff;
-        blinkmask_r = 0;
-        blinkmask_speed = 1;
-        // activate door opener
-        blinkmask_d = 0xff;
-        blinkmask_b = 0xff;
-        return 1;
-    }
-    if(command == "deny"){
-        // set blinking
-        SerialC << "{\"check_result\":{\"node\":"<<nid<<",\"hasData\":"<<(int)hasData<<"}}"<<endl;
-        hasData = 0;
-        //blink leds
-        blinkmask_override = millis()+2000;
-        blinkmask_r = 0x1f;
-        blinkmask_g = 0;
-        blinkmask_b = 0x0f;
-        blinkmask_speed = 1;
-        return 1;
-    }
-    if(command == "clear"){
-        // set blinking
-        SerialC << "{\"check_result\":{\"node\":"<<nid<<",\"hasData\":"<<(int)hasData<<"}}"<<endl;
-        hasData = 0;
-        //blink leds
-        blinkmask_override = millis()+2;
-        blinkmask_r = 0x1f;
-        blinkmask_g = 0;
-        blinkmask_b = 0x00;
-        blinkmask_speed = 1;
-        return 1;
-    }
-    return 0;
+void start_animation() {
+    led_frame = 0;
+    play_animation = true;
+    anim_start_frame = led_frame;
+    strip.clear();
 }
 
-
-void blinkLedsHelper(){
-    byte blinkmask = 1<<((millis()/(100*blinkmask_speed))%8);
-
-    digitalWrite(LED_R,(blinkmask & blinkmask_r));
-    digitalWrite(LED_G,(blinkmask & blinkmask_g));
-    digitalWrite(BUZZ,(blinkmask & blinkmask_b));
-    digitalWrite(DOOR,(blinkmask & blinkmask_d));
-    
-    // set blink mode
-    if(blinkmask_override < millis()){
-        if(blinkmask_r == 33 && blinkmask_g == 18){ // timeout wait for check
-            hasData = 0;
-        }
-        // reset data
-        blinkmask_override = 0;
-        blinkmask_d = 0x00;
-        blinkmask_b = 0x00;
-
-        // status blink
-        if((millis() - last_check) > 8000){
-            blinkmask_g = 0;
-            blinkmask_r = 1;
-            blinkmask_speed = 5;
-        }else{
-            blinkmask_g = 1;
-            blinkmask_r = 0;
-            blinkmask_speed = 5;
-        }
-    }
+void execute_command(char c){
+    switch(c) {
+        case 'L': // Listening
+            listening = true;
+            break;
+        case 'N': // Not Listening
+            listening = false;
+            break;
+        case 's': // Success
+            animation = 1;
+            start_animation();
+            break;
+        case 'f': // fail
+            animation = 2;
+            start_animation();
+            break;
+        default:
+            return;
+   }
 }
