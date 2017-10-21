@@ -14,9 +14,9 @@ public class Keyboard extends Component {
     private final Label label;
     private String message;
     private String enteredText = "";
-    private String buttons[] = {"q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
-                                "a", "s", "d", "f", "g", "h", "j", "k", "l", "",
-                                "", "z", "x", "c", "v", "b", "n", "m", "", ""};
+    private String buttons[] = {"q", "w", "e", "r", "t", "y", "u", "i", "o",
+                                "a", "s", "d", "f", "g", "h", "j", "k", "l",
+                                "", "z", "x", "c", "v", "b", "n", "m", "p"};
 
     public Keyboard(final KeyboardResultHandler resultHandler, String message) {
         this.message = message;
@@ -26,7 +26,7 @@ public class Keyboard extends Component {
         label = new Label(message);
         verticalLayout.addChild(label);
 
-        gridLayout = new GridLayout(10);
+        gridLayout = new GridLayout(9);
         verticalLayout.addChild(gridLayout);
 
         for (final String text : buttons) {
