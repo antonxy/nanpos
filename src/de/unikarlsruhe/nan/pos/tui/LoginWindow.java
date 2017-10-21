@@ -51,7 +51,7 @@ public class LoginWindow extends Window {
                             return true;
                         } else {
                             resultHandler.handle(null, LoginWindow.this, "Unknown card");
-                            cardReader.failAnimation();
+                            //cardReader.failAnimation();
                         }
                     } catch (SQLException e) {
                         e.printStackTrace();
