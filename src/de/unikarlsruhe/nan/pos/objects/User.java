@@ -72,10 +72,7 @@ public class User {
         prep.execute();
     }
 
-    public User(ResultSet resSet) throws SQLException {
-        this.id = resSet.getInt("id");
-        this.operator = resSet.getBoolean("isop");
-        this.name = resSet.getString("name");
+    public void reloadBalance() throws SQLException {
         PreparedStatement prep = DatabaseConnection.getInstance().prepare(
                 "SELECT sum(amount) as sum FROM revenues WHERE \"user\"=?");
         prep.setInt(1, id);
@@ -83,6 +80,13 @@ public class User {
             res.next();
             this.balance = res.getInt("sum");
         }
+    }
+
+    public User(ResultSet resSet) throws SQLException {
+        this.id = resSet.getInt("id");
+        this.operator = resSet.getBoolean("isop");
+        this.name = resSet.getString("name");
+        reloadBalance();
     }
 
     public int getBalance() {

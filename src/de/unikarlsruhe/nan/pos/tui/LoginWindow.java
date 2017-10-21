@@ -30,7 +30,7 @@ public class LoginWindow extends Window {
         }
 
         if (action != null) {
-            Label messageLabel = new Label("Scan cart to " + action);
+            Label messageLabel = new Label("Scan card to " + action);
             verticalLayout.addChild(messageLabel);
             Label messageLabel2 = new Label("or");
             verticalLayout.addChild(messageLabel2);
@@ -47,9 +47,11 @@ public class LoginWindow extends Window {
                         User userByCardnr = User.getUserByCardnr(cardnr);
                         if (userByCardnr != null) {
                             resultHandler.handle(userByCardnr, LoginWindow.this, "Success");
+                            cardReader.successAnimation();
                             return true;
                         } else {
                             resultHandler.handle(null, LoginWindow.this, "Unknown card");
+                            cardReader.failAnimation();
                         }
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -78,6 +80,8 @@ public class LoginWindow extends Window {
         this.resultHandler = resultHandler;
     }
 
+
+
     @Override
     protected void onClick(TerminalPosition position) {
         //Can click anywhere on screen but button
@@ -85,6 +89,8 @@ public class LoginWindow extends Window {
             super.onClick(position);
             return;
         }
+
+        CardReader.getInstance().disableListener();
 
         final Window kbdWindow = new Window();
         CenterLayout centerLayout = new CenterLayout();
@@ -143,6 +149,12 @@ public class LoginWindow extends Window {
         centerLayout.addChild(userKbd);
         kbdWindow.setCentralComponent(centerLayout);
         getTui().openWindow(kbdWindow);
+    }
+
+    @Override
+    public void close() {
+        CardReader.getInstance().disableListener();
+        super.close();
     }
 
     public interface LoginResultHandler {

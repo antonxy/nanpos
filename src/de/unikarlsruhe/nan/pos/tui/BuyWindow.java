@@ -58,7 +58,7 @@ public class BuyWindow extends Window {
         horizontalLayout.addChild(new Button("Back", new Runnable() {
             @Override
             public void run() {
-                resultCallback.handle(null, TextColor.ANSI.BLUE);
+                resultCallback.handle(null, true);
             }
         }));
 
@@ -75,8 +75,7 @@ public class BuyWindow extends Window {
                                                 String detailMessage) {
                                             if (user == null) {
                                                 final ResultScreen resultScreen = new ResultScreen(
-                                                        detailMessage,
-                                                        TextColor.ANSI.RED);
+                                                        detailMessage, false);
                                                 resultScreen
                                                         .setDoneCallback(new Runnable() {
                                                             @Override
@@ -114,8 +113,7 @@ public class BuyWindow extends Window {
                                                 String detailMessage) {
                                             if (user == null) {
                                                 final ResultScreen resultScreen = new ResultScreen(
-                                                        detailMessage,
-                                                        TextColor.ANSI.RED);
+                                                        detailMessage, false);
                                                 resultScreen
                                                         .setDoneCallback(new Runnable() {
                                                             @Override
@@ -153,8 +151,7 @@ public class BuyWindow extends Window {
                                                 String detailMessage) {
                                             final ResultScreen resultScreen = new ResultScreen(
                                                     detailMessage,
-                                                    success ? TextColor.ANSI.GREEN
-                                                            : TextColor.ANSI.RED);
+                                                    success);
                                             resultScreen
                                                     .setDoneCallback(new Runnable() {
                                                         @Override
@@ -180,7 +177,7 @@ public class BuyWindow extends Window {
                                 clickedProduct(byEAN);
                             } else {
                                 resultCallback.handle("Unknown product",
-                                        TextColor.ANSI.RED);
+                                        false);
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();
@@ -220,16 +217,28 @@ public class BuyWindow extends Window {
         PS2BarcodeScanner.getInstance().removeBarcodeListener();
         try {
             if (this.isVisible()) {
-                boolean success = user.buy(product);
+                boolean success = false;
+                try {
+                    success = user.buy(product);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    resultCallback.handle("SQL Error - could not buy the product", false);
+                    return;
+                }
+                String balance = "ERROR";
+                try {
+                    user.reloadBalance();
+                    balance = Integer.toString(user.getBalance());
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 resultCallback.handle(
-                        success ? "Big success - you have bought the product"
+                        success ? "Big success - you have bought the product\nNew Balance: " + balance + " ct"
                                 : "Fatal error - could not buy the product",
-                        success ? TextColor.ANSI.GREEN : TextColor.ANSI.RED);
+                        success);
             } else {
-                resultCallback.handle("Fatal error - was not logged in. This should never happen.", TextColor.ANSI.RED);
+                resultCallback.handle("Fatal error - was not logged in. This should never happen.", false);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
             user = null;
         }
@@ -260,6 +269,6 @@ public class BuyWindow extends Window {
     }
 
     public interface BuyWindowResultHandler {
-        public void handle(String result, TextColor color);
+        public void handle(String result, boolean success);
     }
 }

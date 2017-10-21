@@ -3,10 +3,7 @@ package de.unikarlsruhe.nan.pos;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.LinkedList;
 
 /**
@@ -14,6 +11,9 @@ import java.util.LinkedList;
  */
 public class CardReader {
     private static CardReader instance = null;
+
+    private Writer scanner_writer = null;
+
     public static CardReader getInstance() {
         if (instance == null) {
             instance = new CardReader();
@@ -24,6 +24,11 @@ public class CardReader {
 
     private CardReaderListener listener = null;
     public CardReader() {
+        try {
+            scanner_writer = new FileWriter("/dev/ttyUSB0");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -51,6 +56,7 @@ public class CardReader {
             uid = check_result.getString("uid");
         } catch (JSONException ex) {
             ex.printStackTrace();
+            System.err.println("Received: " + line);
             return;
         }
         callListeners(cardnr, uid);
@@ -64,12 +70,34 @@ public class CardReader {
         }
     }
 
+    private void sendState(char ch) {
+        try {
+            if (scanner_writer != null) {
+                scanner_writer.write(ch);
+                scanner_writer.flush();
+                System.err.println("Sent " + ch + " to card reader");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void successAnimation() {
+        sendState('s');
+    }
+
+    public void failAnimation() {
+        sendState('f');
+    }
+
     public void disableListener() {
         listener = null;
+        sendState('N');
     }
 
     public void setListener(CardReaderListener listener) {
         this.listener = listener;
+        sendState('L');
     }
 
     public interface CardReaderListener {

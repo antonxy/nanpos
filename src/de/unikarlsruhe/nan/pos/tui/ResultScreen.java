@@ -4,6 +4,7 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
+import de.unikarlsruhe.nan.pos.CardReader;
 
 /**
  * @author Anton Schirg
@@ -13,9 +14,14 @@ public class ResultScreen extends Window {
     private Runnable callback;
     private boolean done = false;
 
-    public ResultScreen(String result, TextColor backgroundColor) {
+    public ResultScreen(String result, boolean success) {
         CenterLayout centerLayout = new CenterLayout();
-        centerLayout.setBackgroundColor(backgroundColor);
+        centerLayout.setBackgroundColor(success ? TextColor.ANSI.GREEN : TextColor.ANSI.RED);
+        if (success) {
+            CardReader.getInstance().successAnimation();
+        } else {
+            CardReader.getInstance().failAnimation();
+        }
         setCentralComponent(centerLayout);
         Button label = new Button(result, new Runnable() {
             @Override

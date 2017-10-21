@@ -51,7 +51,7 @@ public class Main {
 		}
 
 		if (!dbConnectionValid) {
-			ResultScreen resultScreen = new ResultScreen("Could not connect to DB", TextColor.ANSI.RED);
+			ResultScreen resultScreen = new ResultScreen("Could not connect to DB", false);
 			tui.openWindow(resultScreen);
 		} else {
 			final LoginWindow loginWindow = new LoginWindow(new LoginWindow.LoginResultHandler() {
@@ -61,10 +61,10 @@ public class Main {
 						final BuyWindow buyWindow = RecyclingBuyWindowFactoryBuilder.build().factorarte(user);
 						buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
 							@Override
-							public void handle(String result, TextColor color) {
+							public void handle(String result, boolean success) {
 								if (result != null) {
 									ResultScreen resultScreen = new ResultScreen(
-											result, color);
+											result, success);
 									resultScreen.setDoneCallback(new Runnable() {
 										@Override
 										public void run() {
@@ -79,8 +79,7 @@ public class Main {
 						});
 						tui.openWindow(buyWindow);
 					} else {
-						final ResultScreen resultScreen = new ResultScreen(detailMessage,
-								TextColor.ANSI.RED);
+						final ResultScreen resultScreen = new ResultScreen(detailMessage, false);
 						resultScreen.setDoneCallback(new Runnable() {
 							@Override
 							public void run() {

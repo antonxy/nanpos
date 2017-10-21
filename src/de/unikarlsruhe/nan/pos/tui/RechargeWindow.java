@@ -22,7 +22,7 @@ public class RechargeWindow extends Window {
                     int amount = Integer.parseInt(enteredText) * 100;
                     user.recharge(discharge ? -amount : amount);
                     String chargeMsg = discharge ? "Discharged " : "Recharged ";
-                    ResultScreen resultScreen = new ResultScreen(chargeMsg + amount + "ct to account", TextColor.ANSI.GREEN);
+                    ResultScreen resultScreen = new ResultScreen(chargeMsg + amount + "ct to account", true);
                     resultScreen.setDoneCallback(new Runnable() {
                         @Override
                         public void run() {
@@ -32,7 +32,7 @@ public class RechargeWindow extends Window {
                     getTui().openWindow(resultScreen);
                 } catch (NumberFormatException | SQLException e) {
                     e.printStackTrace();
-                    ResultScreen resultScreen = new ResultScreen("Error", TextColor.ANSI.RED);
+                    ResultScreen resultScreen = new ResultScreen("Error", false);
                     resultScreen.setDoneCallback(new Runnable() {
                         @Override
                         public void run() {
