@@ -196,6 +196,7 @@ public class BuyWindow extends Window {
                         if (getTui() != null
                                 && System.currentTimeMillis()
                                         - getTui().getLastInputTime() > TIMEOUT) {
+                            PS2BarcodeScanner.getInstance().removeBarcodeListener();
                             close();
                             return;
                         }
@@ -218,11 +219,15 @@ public class BuyWindow extends Window {
     private void clickedProduct(Product product) {
         PS2BarcodeScanner.getInstance().removeBarcodeListener();
         try {
-            boolean success = user.buy(product);
-            resultCallback.handle(
-                    success ? "Big success - you have bought the product"
-                            : "Fatal error - could not buy the product",
-                    success ? TextColor.ANSI.GREEN : TextColor.ANSI.RED);
+            if (this.isVisible()) {
+                boolean success = user.buy(product);
+                resultCallback.handle(
+                        success ? "Big success - you have bought the product"
+                                : "Fatal error - could not buy the product",
+                        success ? TextColor.ANSI.GREEN : TextColor.ANSI.RED);
+            } else {
+                resultCallback.handle("Fatal error - was not logged in. This should never happen.", TextColor.ANSI.RED);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
