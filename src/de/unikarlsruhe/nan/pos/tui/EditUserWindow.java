@@ -28,21 +28,14 @@ public class EditUserWindow extends Window {
         verticalLayout = new VerticalLayout();
         centerLayout.addChild(verticalLayout);
 
+        verticalLayout.addChild(new Label("Edit User"));
         balanceLabel = new Label("User: " + user.getName() + " | " + "Balance: " + Utils.formatPrice(user.getBalance()));
         verticalLayout.addChild(balanceLabel);
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         verticalLayout.addChild(horizontalLayout);
-
-        horizontalLayout.addChild(new Button("Back", new Runnable() {
-            @Override
-            public void run() {
-                close();
-                if (done != null) {
-                    done.run();
-                }
-            }
-        }));
+        HorizontalLayout horizontalLayout2 = new HorizontalLayout();
+        verticalLayout.addChild(horizontalLayout2);
 
         horizontalLayout.addChild(new Button("Recharge", new Runnable() {
             @Override
@@ -73,7 +66,17 @@ public class EditUserWindow extends Window {
             }
         }));
 
-        horizontalLayout.addChild(new Button("Set Card", new Runnable() {
+        horizontalLayout2.addChild(new Button("Back", new Runnable() {
+            @Override
+            public void run() {
+                close();
+                if (done != null) {
+                    done.run();
+                }
+            }
+        }));
+
+        horizontalLayout2.addChild(new Button("Set Card", new Runnable() {
             @Override
             public void run() {
                 final ScanCardWindow scanCardWindow = new ScanCardWindow(new CardReader.CardReaderListener() {
@@ -114,7 +117,7 @@ public class EditUserWindow extends Window {
                 getTui().openWindow(scanCardWindow);
             }
         }));
-        horizontalLayout.addChild(new Button("Unset Card", new Runnable() {
+        horizontalLayout2.addChild(new Button("Unset Card", new Runnable() {
             @Override
             public void run() {
                     try {
@@ -145,7 +148,7 @@ public class EditUserWindow extends Window {
             }
         ));
 
-        horizontalLayout.addChild(new Button("Set PIN", new Runnable() {
+        horizontalLayout2.addChild(new Button("Set PIN", new Runnable() {
             @Override
             public void run() {
                 Window numWin = new Window();
@@ -187,7 +190,7 @@ public class EditUserWindow extends Window {
             }
         }));
 
-        horizontalLayout.addChild(new Button("Unset PIN", new Runnable() {
+        horizontalLayout2.addChild(new Button("Unset PIN", new Runnable() {
             @Override
             public void run() {
                 try {

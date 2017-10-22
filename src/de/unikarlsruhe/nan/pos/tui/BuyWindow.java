@@ -30,6 +30,7 @@ public class BuyWindow extends Window {
 		verticalLayout = new VerticalLayout();
 		centerLayout.addChild(verticalLayout);
 
+        verticalLayout.addChild(new Label("Logged in as"));
 		balanceLabel = new Label("User: " + user.getName() + " | "
 				+ "Balance: " + Utils.formatPrice(user.getBalance()));
 		verticalLayout.addChild(balanceLabel);
@@ -58,6 +59,7 @@ public class BuyWindow extends Window {
 		horizontalLayout.addChild(new Button("Back", new Runnable() {
 			@Override
 			public void run() {
+                PS2BarcodeScanner.getInstance().removeBarcodeListener();
 				resultCallback.handle(null, true);
 			}
 		}));
@@ -184,13 +186,13 @@ public class BuyWindow extends Window {
 				}
 				resultCallback
 						.handle(success ? "Big success - you have bought the product\nNew Balance: "
-								+ balance
-								: "Fatal error - could not buy the product",
-								success);
+                                        + balance
+                                        : "Fatal error - could not buy the product",
+                                success);
 			} else {
 				resultCallback
 						.handle("Fatal error - was not logged in. This should never happen.",
-								false);
+                                false);
 			}
 		} finally {
 			user = null;

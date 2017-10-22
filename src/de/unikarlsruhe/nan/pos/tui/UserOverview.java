@@ -47,6 +47,13 @@ public class UserOverview extends Window {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         verticalLayout.addChild(horizontalLayout);
 
+        horizontalLayout.addChild(new Button("Back", new Runnable() {
+            @Override
+            public void run() {
+                close();
+            }
+        }));
+
         horizontalLayout.addChild(new Button("Select User", new Runnable() {
             @Override
             public void run() {
@@ -77,13 +84,6 @@ public class UserOverview extends Window {
                                         }
                                     }
                                 }, false, "select", true, false));
-            }
-        }));
-
-        horizontalLayout.addChild(new Button("Back", new Runnable() {
-            @Override
-            public void run() {
-                close();
             }
         }));
 
