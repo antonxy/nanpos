@@ -66,7 +66,7 @@ public class Product {
 		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
 				"INSERT INTO products (name, ean, price) VALUES (?, ?, ?)");
 		prep.setString(1, name);
-		prep.setLong(2, ean);
+		prep.setLong(2, ean == 0 ? null : ean);
 		prep.setInt(3, price);
 		prep.executeUpdate();
 	}

@@ -31,6 +31,13 @@ public class ScanEanWindow extends Window {
 				PS2BarcodeScanner.getInstance().removeBarcodeListener();
 			}
 		}));
+		verticalLayout.addChild(new Button("Skip", new Runnable() {
+			@Override
+			public void run() {
+				listener.barcodeScanned(0);
+				PS2BarcodeScanner.getInstance().removeBarcodeListener();
+			}
+		}));
 
 		PS2BarcodeScanner.getInstance().setBarcodeListener(
 				new PS2BarcodeScanner.BarcodeListener() {
