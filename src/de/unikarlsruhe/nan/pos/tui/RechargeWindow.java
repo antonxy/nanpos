@@ -2,6 +2,7 @@ package de.unikarlsruhe.nan.pos.tui;
 
 import com.googlecode.lanterna.TextColor;
 import de.unikarlsruhe.nan.pos.objects.User;
+import de.unikarlsruhe.nan.pos.objects.Utils;
 
 import java.sql.SQLException;
 
@@ -22,7 +23,7 @@ public class RechargeWindow extends Window {
                     int amount = Integer.parseInt(enteredText) * 100;
                     user.recharge(discharge ? -amount : amount);
                     String chargeMsg = discharge ? "Discharged " : "Recharged ";
-                    ResultScreen resultScreen = new ResultScreen(chargeMsg + amount + "ct to account", true);
+                    ResultScreen resultScreen = new ResultScreen(chargeMsg + Utils.formatPrice(amount) + " to account", true);
                     resultScreen.setDoneCallback(new Runnable() {
                         @Override
                         public void run() {

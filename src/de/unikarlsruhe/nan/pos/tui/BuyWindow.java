@@ -13,6 +13,7 @@ import com.googlecode.lanterna.TextColor;
 import de.unikarlsruhe.nan.pos.PS2BarcodeScanner;
 import de.unikarlsruhe.nan.pos.objects.Product;
 import de.unikarlsruhe.nan.pos.objects.User;
+import de.unikarlsruhe.nan.pos.objects.Utils;
 
 /**
  * @author Anton Schirg
@@ -32,7 +33,7 @@ public class BuyWindow extends Window {
         verticalLayout = new VerticalLayout();
         centerLayout.addChild(verticalLayout);
 
-        balanceLabel = new Label("User: " + user.getName() + " | " + "Balance: " + formatPrice(user.getBalance()));
+        balanceLabel = new Label("User: " + user.getName() + " | " + "Balance: " + Utils.formatPrice(user.getBalance()));
         verticalLayout.addChild(balanceLabel);
         GridLayout gridLayout = new GridLayout(4);
         verticalLayout.addChild(gridLayout);
@@ -41,7 +42,7 @@ public class BuyWindow extends Window {
             List<Product> allProducts = Product.getAllProducts();
             for (final Product product : allProducts) {
                 gridLayout.addChild(new Button(product.getName() + "\n"
-                        + formatPrice(product.getPrice()), new Runnable() {
+                        + Utils.formatPrice(product.getPrice()), new Runnable() {
                     @Override
                     public void run() {
                         clickedProduct(product);
@@ -164,6 +165,14 @@ public class BuyWindow extends Window {
                                     }, user));
                 }
             }));
+
+            horizontalLayout.addChild(new Button("All Users", new Runnable() {
+                @Override
+                public void run() {
+                    getTui().openWindow(
+                            new UserOverview());
+                }
+            }));
         }
 
         PS2BarcodeScanner.getInstance().setBarcodeListener(
@@ -206,13 +215,6 @@ public class BuyWindow extends Window {
         }).start();
     }
 
-    private String formatPrice(int cents) {
-        double euros = ((double) cents) / 100;
-        NumberFormat formatter = NumberFormat
-                .getCurrencyInstance(Locale.GERMANY);
-        return formatter.format(euros);
-    }
-
     private void clickedProduct(Product product) {
         PS2BarcodeScanner.getInstance().removeBarcodeListener();
         try {
@@ -228,7 +230,7 @@ public class BuyWindow extends Window {
                 String balance = "ERROR";
                 try {
                     user.reloadBalance();
-                    balance = formatPrice(user.getBalance());
+                    balance = Utils.formatPrice(user.getBalance());
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

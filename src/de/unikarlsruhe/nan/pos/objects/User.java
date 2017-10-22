@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 import de.unikarlsruhe.nan.pos.DatabaseConnection;
 
@@ -135,4 +137,15 @@ public class User {
         return name;
     }
 
+    public static List<User> getAllUsers() throws SQLException {
+        LinkedList<User> res = new LinkedList<User>();
+        PreparedStatement prep = DatabaseConnection.getInstance().prepare(
+                "SELECT * FROM users ORDER BY name ASC");
+        try (ResultSet resSet = prep.executeQuery()) {
+            while (resSet.next()) {
+                res.add(new User(resSet));
+            }
+        }
+        return res;
+    }
 }
