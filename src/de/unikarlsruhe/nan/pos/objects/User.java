@@ -152,9 +152,13 @@ public class User {
     public void setCard(String cardnr) throws SQLException, NoSuchAlgorithmException {
         PreparedStatement prep = DatabaseConnection.getInstance().prepare(
                 "UPDATE users SET card=? WHERE id=?");
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-        messageDigest.update(cardnr.getBytes());
-        prep.setString(1, byteArrayToHexString(messageDigest.digest()));
+        if (cardnr != null) {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(cardnr.getBytes());
+            prep.setString(1, byteArrayToHexString(messageDigest.digest()));
+        } else {
+            prep.setString(1, null);
+        }
         prep.setInt(2, id);
         prep.execute();
     }
