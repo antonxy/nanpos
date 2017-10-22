@@ -68,9 +68,13 @@ public class User {
         PreparedStatement prep = DatabaseConnection.getInstance().prepare(
                 "INSERT INTO users (name, card) VALUES(?, ?)");
         prep.setString(1, name);
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-        messageDigest.update(cardnr.getBytes());
-        prep.setString(2, byteArrayToHexString(messageDigest.digest()));
+        if (cardnr != null) {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(cardnr.getBytes());
+            prep.setString(2, byteArrayToHexString(messageDigest.digest()));
+        } else {
+            prep.setString(2, null);
+        }
         prep.execute();
     }
 
