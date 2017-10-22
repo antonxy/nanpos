@@ -166,4 +166,18 @@ public class User {
         prep.setInt(2, id);
         prep.execute();
     }
+
+    public void setPin(String pin) throws SQLException, NoSuchAlgorithmException {
+        PreparedStatement prep = DatabaseConnection.getInstance().prepare(
+                "UPDATE users SET pin=? WHERE id=?");
+        if (pin != null) {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(pin.getBytes());
+            prep.setString(1, byteArrayToHexString(messageDigest.digest()));
+        } else {
+            prep.setString(1, null);
+        }
+        prep.setInt(2, id);
+        prep.execute();
+    }
 }
