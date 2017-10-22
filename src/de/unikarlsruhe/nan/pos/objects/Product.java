@@ -61,4 +61,13 @@ public class Product {
 		return ean;
 	}
 
+	public static void create(String name, long ean, int price)
+			throws SQLException {
+		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
+				"INSERT INTO products (name, ean, price) VALUES (?, ?, ?)");
+		prep.setString(1, name);
+		prep.setLong(2, ean);
+		prep.setInt(3, price);
+		prep.executeUpdate();
+	}
 }
