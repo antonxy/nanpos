@@ -17,7 +17,7 @@ public class Product {
 	public static List<Product> getAllProducts() throws SQLException {
 		LinkedList<Product> res = new LinkedList<Product>();
 		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
-				"SELECT * FROM products ORDER BY name ASC");
+				"SELECT * FROM products WHERE visible=TRUE ORDER BY name ASC");
 		try (ResultSet resSet = prep.executeQuery()) {
 			while (resSet.next()) {
 				res.add(new Product(resSet));
@@ -28,7 +28,7 @@ public class Product {
 
 	public static Product getByEAN(long ean) throws SQLException {
 		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
-				"SELECT * FROM products WHERE ean=?");
+				"SELECT * FROM products WHERE ean=? and visible=TRUE");
 		prep.setLong(1, ean);
 		try (ResultSet res = prep.executeQuery()) {
 			if (res.next()) {
