@@ -3,6 +3,7 @@ package de.unikarlsruhe.nan.pos.objects;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,8 +67,12 @@ public class Product {
 		PreparedStatement prep = DatabaseConnection.getInstance().prepare(
 				"INSERT INTO products (name, ean, price) VALUES (?, ?, ?)");
 		prep.setString(1, name);
-		prep.setLong(2, ean == 0 ? null : ean);
+		if (ean == 0) {
+			prep.setNull(2, Types.BIGINT);
+		} else {
+			prep.setLong(2, ean);
+		}
 		prep.setInt(3, price);
-		prep.executeUpdate();
+		prep.execute();
 	}
 }

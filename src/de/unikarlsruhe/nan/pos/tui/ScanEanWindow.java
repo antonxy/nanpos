@@ -46,6 +46,7 @@ public class ScanEanWindow extends Window {
 						if (ScanEanWindow.this.isVisible()) {
 							listener.barcodeScanned(barcode);
 						}
+						PS2BarcodeScanner.getInstance().removeBarcodeListener();
 					}
 				});
 	}

@@ -61,16 +61,16 @@ public class Keyboard extends Component {
                 updateLabel();
             }
         }, 6, 3));
-        gridLayout.addChild(new Button("OK", new Runnable() {
-            @Override
-            public void run() {
-                resultHandler.handle(enteredText, Keyboard.this);
-            }
-        }, 6, 3));
         gridLayout.addChild(new Button("CN", new Runnable() {
             @Override
             public void run() {
                 resultHandler.handle(null, Keyboard.this);
+            }
+        }, 6, 3));
+        gridLayout.addChild(new Button("OK", new Runnable() {
+            @Override
+            public void run() {
+                resultHandler.handle(enteredText, Keyboard.this);
             }
         }, 6, 3));
     }
