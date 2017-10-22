@@ -63,7 +63,7 @@ public class User {
 
     }
 
-    public static void createUser(User operator, String name, String cardnr)
+    public static void createUser(String name, String cardnr)
             throws SQLException, NoSuchAlgorithmException {
         PreparedStatement prep = DatabaseConnection.getInstance().prepare(
                 "INSERT INTO users (name, card) VALUES(?, ?)");
@@ -147,5 +147,15 @@ public class User {
             }
         }
         return res;
+    }
+
+    public void setCard(String cardnr) throws SQLException, NoSuchAlgorithmException {
+        PreparedStatement prep = DatabaseConnection.getInstance().prepare(
+                "UPDATE users SET card=? WHERE id=?");
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        messageDigest.update(cardnr.getBytes());
+        prep.setString(1, byteArrayToHexString(messageDigest.digest()));
+        prep.setInt(2, id);
+        prep.execute();
     }
 }

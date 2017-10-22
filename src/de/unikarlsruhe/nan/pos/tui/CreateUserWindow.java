@@ -3,10 +3,8 @@ package de.unikarlsruhe.nan.pos.tui;
 import de.unikarlsruhe.nan.pos.CardReader;
 import de.unikarlsruhe.nan.pos.objects.User;
 
-import javax.jws.soap.SOAPBinding;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.Objects;
 
 /**
  * @author Anton Schirg
@@ -29,7 +27,7 @@ public class CreateUserWindow extends Window {
                         public boolean onCardDetected(String cardnr, String uid) {
                             try {
                                 if (cardnr != null) {
-                                    User.createUser(operator, enteredText, cardnr);
+                                    User.createUser(enteredText, cardnr);
                                     resultHandler.handle(true, CreateUserWindow.this, "Created user");
                                     return true;
                                 } else {

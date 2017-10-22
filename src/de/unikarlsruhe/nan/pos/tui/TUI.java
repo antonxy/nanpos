@@ -46,6 +46,19 @@ public class TUI extends Component implements ClickListener {
         redraw();
     }
 
+    public void closeWindowsAbove(Window window) {
+        CardReader.getInstance().disableListener();
+        int i = windowStack.indexOf(window);
+        if (i != -1) {
+            while (windowStack.size() > i + 1) {
+                windowStack.removeLast();
+            }
+        }
+        windowStack.getLast().onVisible();
+        layout();
+        redraw();
+    }
+
     public Window getTopWindow() {
         return windowStack.getLast();
     }
