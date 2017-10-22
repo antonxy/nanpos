@@ -28,6 +28,7 @@ public class RechargeWindow extends Window {
                         @Override
                         public void run() {
                             doneCallback.run();
+                            close();
                         }
                     });
                     getTui().openWindow(resultScreen);
@@ -38,6 +39,7 @@ public class RechargeWindow extends Window {
                         @Override
                         public void run() {
                             doneCallback.run();
+                            close();
                         }
                     });
                     getTui().openWindow(resultScreen);

@@ -36,7 +36,7 @@ public class UserOverview extends Window {
                         + Utils.formatPrice(user.getBalance()), new Runnable() {
                     @Override
                     public void run() {
-
+                        getTui().openWindow(new EditUserWindow(user));
                     }
                 }));
             }
@@ -46,6 +46,39 @@ public class UserOverview extends Window {
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         verticalLayout.addChild(horizontalLayout);
+
+        horizontalLayout.addChild(new Button("Select User", new Runnable() {
+            @Override
+            public void run() {
+                getTui().openWindow(
+                        new LoginWindow(
+                                new LoginWindow.LoginResultHandler() {
+                                    @Override
+                                    public void handle(User user,
+                                                       final LoginWindow caller,
+                                                       String detailMessage) {
+                                        if (user == null) {
+                                            final ResultScreen resultScreen = new ResultScreen(
+                                                    detailMessage, false);
+                                            resultScreen
+                                                    .setDoneCallback(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            caller.close();
+                                                        }
+                                                    });
+                                            getTui().openWindow(
+                                                    resultScreen);
+                                        } else {
+                                            caller.close();
+                                            getTui().openWindow(
+                                                    new EditUserWindow(user)
+                                            );
+                                        }
+                                    }
+                                }, false, "select", true, false));
+            }
+        }));
 
         horizontalLayout.addChild(new Button("Back", new Runnable() {
             @Override
