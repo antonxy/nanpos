@@ -77,6 +77,7 @@ public class NoteValidator {
                                     break;
                                 case 0xee:
                                     System.err.println("Credit!: " + (int)pollData[2]);
+                                    listener.onNoteCredited((int)pollData[2]);
                                     break;
                                 case 0xeb:
                                     System.err.println("Stacked. ");
