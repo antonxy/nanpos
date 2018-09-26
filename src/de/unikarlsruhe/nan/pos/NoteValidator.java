@@ -13,10 +13,10 @@ public class NoteValidator {
 
     private OutputStream scanner_writer = null;
     private InputStream reader = null;
-    private HashMap<Integer, Integer> channelValues =new HashMap<>();
+    private HashMap<Integer, Integer> channelValues = new HashMap<>();
     private Thread listThread;
 
-    public static NoteValidator getInstance() throws IOException {
+    public static NoteValidator getInstance() {
         if (instance == null) {
             instance = new NoteValidator();
         }
@@ -25,7 +25,7 @@ public class NoteValidator {
 
     private NoteListener listener = null;
 
-    public NoteValidator() throws IOException {
+    public NoteValidator() {
         try {
             scanner_writer = new FileOutputStream("/dev/ttyACM0");
             reader = new FileInputStream("/dev/ttyACM0");
@@ -34,22 +34,25 @@ public class NoteValidator {
         }
         //sendPacket(new char[]{0x01});
         //readPacket();
-        sendPacket(new char[]{0x11}); // Sync
-        sendPacket(new char[]{0x05}); // Set-up request
-        sendPacket(new char[]{0x02, 0xff, 0xff}); // Set inhibits (enable all notes)
-        char[] valMultip = sendPacket(new char[]{0x0D});
-        int valueMultiplier = valMultip[9];
-        valueMultiplier <<= 8;
-        valueMultiplier += valMultip[10];
-        valueMultiplier <<= 8;
-        valueMultiplier += valMultip[11];
-        char[] valData = sendPacket(new char[]{0x0E});
-        int chanCount = valData[1];
-        for (int i = 0; i < chanCount; i++) {
-            channelValues.put(i+1, (int) valData[2+i]*valueMultiplier);
+        try {
+            sendPacket(new char[]{0x11}); // Sync
+            sendPacket(new char[]{0x05}); // Set-up request
+            sendPacket(new char[]{0x02, 0xff, 0xff}); // Set inhibits (enable all notes)
+            char[] valMultip = sendPacket(new char[]{0x0D});
+            int valueMultiplier = valMultip[9];
+            valueMultiplier <<= 8;
+            valueMultiplier += valMultip[10];
+            valueMultiplier <<= 8;
+            valueMultiplier += valMultip[11];
+            char[] valData = sendPacket(new char[]{0x0E});
+            int chanCount = valData[1];
+            for (int i = 0; i < chanCount; i++) {
+                channelValues.put(i + 1, (int) valData[2 + i] * valueMultiplier);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-
 
 
     public void disableListener() {
@@ -62,7 +65,7 @@ public class NoteValidator {
     }
 
     public void setListener(NoteListener newListener) {
-        if(this.listener != null) {
+        if (this.listener != null) {
             throw new Error("Listener already registerd!");
         }
         this.listener = newListener;
@@ -73,7 +76,7 @@ public class NoteValidator {
                     sendPacket(new char[]{0x0A});
                     while (NoteValidator.this.listener != null) {
                         char[] pollData = sendPacket(new char[]{0x07});
-                        if(pollData.length > 1) {
+                        if (pollData.length > 1) {
                             /*for (int i = 0; i < pollData.length; i++) {
                                 System.err.print(String.format("%02x", (int) pollData[i]));
                             }
@@ -82,8 +85,8 @@ public class NoteValidator {
                             switch (pollData[1]) {
                                 case 0xef:
                                     if (pollData[2] > 0) {
-                                        System.err.println("Read channel " + (int)pollData[2]);
-                                        if(!listener.onNoteRead((int)pollData[2], channelValues.get((int)pollData[2])*100)) {
+                                        System.err.println("Read channel " + (int) pollData[2]);
+                                        if (!listener.onNoteRead((int) pollData[2], channelValues.get((int) pollData[2]) * 100)) {
                                             System.err.println("Got reject from listener");
                                             rejectNote();
                                         }
@@ -95,8 +98,8 @@ public class NoteValidator {
                                     System.err.println("Stacking");
                                     break;
                                 case 0xee:
-                                    System.err.println("Credit!: " + (int)pollData[2]);
-                                    listener.onNoteCredited((int)pollData[2], channelValues.get((int)pollData[2])*100);
+                                    System.err.println("Credit!: " + (int) pollData[2]);
+                                    listener.onNoteCredited((int) pollData[2], channelValues.get((int) pollData[2]) * 100);
                                     break;
                                 case 0xeb:
                                     System.err.println("Stacked. ");
@@ -122,40 +125,40 @@ public class NoteValidator {
         });
         listThread.start();
     }
+
     private void rejectNote() throws IOException {
         sendPacket(new char[]{0x08});
     }
+
     public interface NoteListener {
         /**
          * @return valid scan - if true listener will be unregistered
          */
         public boolean onNoteRead(int channel, int valueInEurCt);
+
         public void onNoteCredited(int channel, int valueInEurCt);
+
         public void onNoteRejected();
     }
 
     public static void main(String[] args) {
-        try {
-            NoteValidator cardReader = new NoteValidator();
-            cardReader.setListener(new NoteListener() {
-                @Override
-                public boolean onNoteRead(int channel, int valueInEurCt) {
-                    return false;
-                }
+        NoteValidator cardReader = new NoteValidator();
+        cardReader.setListener(new NoteListener() {
+            @Override
+            public boolean onNoteRead(int channel, int valueInEurCt) {
+                return false;
+            }
 
-                @Override
-                public void onNoteCredited(int channel, int valueInEurCt) {
+            @Override
+            public void onNoteCredited(int channel, int valueInEurCt) {
 
-                }
+            }
 
-                @Override
-                public void onNoteRejected() {
+            @Override
+            public void onNoteRejected() {
 
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            }
+        });
     }
 
     private boolean flip = true;
