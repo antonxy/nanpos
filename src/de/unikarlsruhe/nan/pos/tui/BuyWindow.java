@@ -238,10 +238,22 @@ public class BuyWindow extends Window {
             public void onNoteCredited(int channel, int valueInEurCt) {
                 try {
                     user.recharge(valueInEurCt);
-                    ResultScreen res = new ResultScreen("Revalued " + valueInEurCt / 100 + "€!", true);
+                    final ResultScreen res = new ResultScreen("Revalued " + valueInEurCt / 100 + "€!", true);
+                    res.setDoneCallback(new Runnable() {
+                        @Override
+                        public void run() {
+                            res.close();
+                        }
+                    });
                     getTui().openWindow(res);
                 } catch (SQLException e) {
-                    ResultScreen res = new ResultScreen("SQL expetion!", false);
+                    final ResultScreen res = new ResultScreen("SQL exception!", false);
+                    res.setDoneCallback(new Runnable() {
+                        @Override
+                        public void run() {
+                            res.close();
+                        }
+                    });
                     getTui().openWindow(res);
                     e.printStackTrace();
                 }
