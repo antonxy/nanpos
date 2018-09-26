@@ -32,7 +32,6 @@ public class BuyWindow extends Window {
         verticalLayout = new VerticalLayout();
         centerLayout.addChild(verticalLayout);
 
-        verticalLayout.addChild(new Label("Logged in as"));
         balanceLabel = new Label("User: " + user.getName() + " | "
                 + "Balance: " + Utils.formatPrice(user.getBalance()));
         verticalLayout.addChild(balanceLabel);
