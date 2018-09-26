@@ -1,5 +1,6 @@
 package de.unikarlsruhe.nan.pos.tui;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalRectangle;
 import com.googlecode.lanterna.TerminalSize;
 
+import de.unikarlsruhe.nan.pos.NoteValidator;
 import de.unikarlsruhe.nan.pos.PS2BarcodeScanner;
 import de.unikarlsruhe.nan.pos.objects.Product;
 import de.unikarlsruhe.nan.pos.objects.User;
@@ -141,6 +143,36 @@ public class BuyWindow extends Window {
 						}
 					}
 				});
+		try {
+			NoteValidator.getInstance().setListener(new NoteValidator.NoteListener() {
+				@Override
+				public boolean onNoteRead(int channel, int valueInEurCt) {
+					getTui().fireGenericInputEvent();
+					System.err.println("Read note");
+					return true;
+				}
+
+				@Override
+				public void onNoteCredited(int channel, int valueInEurCt) {
+					try {
+						user.recharge(valueInEurCt);
+						ResultScreen res = new ResultScreen("Revalued " + valueInEurCt/100 +"€!", true);
+						getTui().openWindow(res);
+					} catch (SQLException e) {
+						ResultScreen res = new ResultScreen("SQL expetion!", false);
+						getTui().openWindow(res);
+						e.printStackTrace();
+					}
+				}
+
+				@Override
+				public void onNoteRejected() {
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+			// Todo: error window
+		}
 		new Thread(new Runnable() {
 
 			@Override
@@ -165,6 +197,11 @@ public class BuyWindow extends Window {
 	}
 
 	private void clickedProduct(Product product) {
+		try {
+			NoteValidator.getInstance().disableListener();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		PS2BarcodeScanner.getInstance().removeBarcodeListener();
 		try {
 			if (this.isVisible()) {
