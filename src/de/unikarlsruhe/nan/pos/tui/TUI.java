@@ -25,7 +25,9 @@ public class TUI extends Component implements ClickListener {
 		System.err.println("Open window " + child.getClass());
 		child.setParent(this);
 		child.setTui(this);
-		windowStack.getLast().onInvisible();
+		if(windowStack.size() > 0) {
+			windowStack.getLast().onInvisible();
+		}
 		windowStack.add(child);
 		child.onOpen();
 		child.onVisible();
