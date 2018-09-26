@@ -22,6 +22,7 @@ public class TUI extends Component implements ClickListener {
 	}
 
 	public void openWindow(Window child) {
+		System.err.println("Open window " + child.getClass());
 		child.setParent(this);
 		child.setTui(this);
 		windowStack.add(child);
@@ -31,6 +32,7 @@ public class TUI extends Component implements ClickListener {
 	}
 
 	public void closeWindow(Window window) {
+		System.err.println("Closed window " + window.getClass());
 		CardReader.getInstance().disableListener();
 		int i = windowStack.indexOf(window);
 		if (i != -1) {
@@ -48,6 +50,7 @@ public class TUI extends Component implements ClickListener {
 	}
 
 	public void closeWindowsAbove(Window window) {
+		System.err.println("Closed windows above " + window.getClass());
 		CardReader.getInstance().disableListener();
 		int i = windowStack.indexOf(window);
 		if (i != -1) {
