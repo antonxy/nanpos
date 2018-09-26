@@ -66,6 +66,33 @@ public class EditUserWindow extends Window {
             }
         }));
 
+        horizontalLayout.addChild(new Button("Impersonate", new Runnable() {
+            @Override
+            public void run() {
+                final TUI tui = getTui();
+                final BuyWindow buyWindow = RecyclingBuyWindowFactoryBuilder.build().factorarte(user);
+                buyWindow.setResultCallback(new BuyWindow.BuyWindowResultHandler() {
+                    @Override
+                    public void handle(String result, boolean success) {
+                        if (result != null) {
+                            ResultScreen resultScreen = new ResultScreen(
+                                    result, success);
+                            resultScreen.setDoneCallback(new Runnable() {
+                                @Override
+                                public void run() {
+                                    buyWindow.close();
+                                }
+                            });
+                            tui.openWindow(resultScreen);
+                        } else {
+                            tui.closeWindow(buyWindow);
+                        }
+                    }
+                });
+                tui.openWindow(buyWindow);
+            }
+        }));
+
         horizontalLayout2.addChild(new Button("Back", new Runnable() {
             @Override
             public void run() {
