@@ -42,6 +42,12 @@ public class LoginWindow extends Window {
             verticalLayout.addChild(messageLabel2);
             Label messageLabel3 = new Label("Touch to " + action + " using PIN");
             verticalLayout.addChild(messageLabel3);
+            if(withAsciiArt) {
+                Label messageLabel4 = new Label("or");
+                verticalLayout.addChild(messageLabel4);
+                Label messageLabel5 = new Label("Enter bank note to validate");
+                verticalLayout.addChild(messageLabel5);
+            }
         }
 
         final CardReader cardReader = CardReader.getInstance();
