@@ -223,7 +223,7 @@ public class NoteValidator {
         }
         scanner_writer.flush();
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
