@@ -3,6 +3,7 @@ package de.unikarlsruhe.nan.pos;
 import de.unikarlsruhe.nan.pos.util.CRC;
 
 import java.io.*;
+import java.util.HashMap;
 
 /**
  * @author Anton Schirg
@@ -12,6 +13,8 @@ public class NoteValidator {
 
     private OutputStream scanner_writer = null;
     private InputStream reader = null;
+    private HashMap<Integer, Integer> channelValues =new HashMap<>();
+    private Thread listThread;
 
     public static NoteValidator getInstance() throws IOException {
         if (instance == null) {
@@ -34,25 +37,41 @@ public class NoteValidator {
         sendPacket(new char[]{0x11}); // Sync
         sendPacket(new char[]{0x05}); // Set-up request
         sendPacket(new char[]{0x02, 0xff, 0xff}); // Set inhibits (enable all notes)
+        char[] valMultip = sendPacket(new char[]{0x0D});
+        int valueMultiplier = valMultip[9];
+        valueMultiplier <<= 8;
+        valueMultiplier += valMultip[10];
+        valueMultiplier <<= 8;
+        valueMultiplier += valMultip[11];
+        char[] valData = sendPacket(new char[]{0x0E});
+        int chanCount = valData[1];
+        for (int i = 0; i < chanCount; i++) {
+            channelValues.put(i+1, (int) valData[2+i]*valueMultiplier);
+        }
     }
 
 
 
     public void disableListener() {
         listener = null;
+        try {
+            listThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void setListener(NoteListener listener) throws IOException {
+    public void setListener(NoteListener newListener) {
         if(this.listener != null) {
             throw new Error("Listener already registerd!");
         }
-        this.listener = listener;
-        sendPacket(new char[]{0x0A});
-        new Thread(new Runnable() {
+        this.listener = newListener;
+        listThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    while (listener != null) {
+                    sendPacket(new char[]{0x0A});
+                    while (NoteValidator.this.listener != null) {
                         char[] pollData = sendPacket(new char[]{0x07});
                         if(pollData.length > 1) {
                             /*for (int i = 0; i < pollData.length; i++) {
@@ -64,7 +83,7 @@ public class NoteValidator {
                                 case 0xef:
                                     if (pollData[2] > 0) {
                                         System.err.println("Read channel " + (int)pollData[2]);
-                                        if(!listener.onNoteRead((int)pollData[2])) {
+                                        if(!listener.onNoteRead((int)pollData[2], channelValues.get((int)pollData[2])*100)) {
                                             System.err.println("Got reject from listener");
                                             rejectNote();
                                         }
@@ -77,7 +96,7 @@ public class NoteValidator {
                                     break;
                                 case 0xee:
                                     System.err.println("Credit!: " + (int)pollData[2]);
-                                    listener.onNoteCredited((int)pollData[2]);
+                                    listener.onNoteCredited((int)pollData[2], channelValues.get((int)pollData[2])*100);
                                     break;
                                 case 0xeb:
                                     System.err.println("Stacked. ");
@@ -100,7 +119,8 @@ public class NoteValidator {
                     e.printStackTrace();
                 }
             }
-        }).run();
+        });
+        listThread.start();
     }
     private void rejectNote() throws IOException {
         sendPacket(new char[]{0x08});
@@ -109,8 +129,8 @@ public class NoteValidator {
         /**
          * @return valid scan - if true listener will be unregistered
          */
-        public boolean onNoteRead(int channel);
-        public void onNoteCredited(int channel);
+        public boolean onNoteRead(int channel, int valueInEurCt);
+        public void onNoteCredited(int channel, int valueInEurCt);
         public void onNoteRejected();
     }
 
@@ -119,12 +139,13 @@ public class NoteValidator {
             NoteValidator cardReader = new NoteValidator();
             cardReader.setListener(new NoteListener() {
                 @Override
-                public boolean onNoteRead(int channel) {
-                    return true;
+                public boolean onNoteRead(int channel, int valueInEurCt) {
+                    return false;
                 }
 
                 @Override
-                public void onNoteCredited(int channel) {
+                public void onNoteCredited(int channel, int valueInEurCt) {
+
                 }
 
                 @Override
