@@ -12,6 +12,7 @@ import de.unikarlsruhe.nan.pos.PS2BarcodeScanner;
 public class ScanEanWindow extends Window {
 
 	private CenterLayout centerLayout;
+	private PS2BarcodeScanner.BarcodeListener listener;
 
 	public ScanEanWindow() {
 		centerLayout = new CenterLayout();
@@ -20,6 +21,7 @@ public class ScanEanWindow extends Window {
 
 	public void setBarCodeListener(
 			final PS2BarcodeScanner.BarcodeListener listener) {
+		this.listener = listener;
 		VerticalLayout verticalLayout = new VerticalLayout();
 		centerLayout.addChild(verticalLayout);
 
@@ -39,16 +41,6 @@ public class ScanEanWindow extends Window {
 			}
 		}));
 
-		PS2BarcodeScanner.getInstance().setBarcodeListener(
-				new PS2BarcodeScanner.BarcodeListener() {
-					@Override
-					public void barcodeScanned(long barcode) {
-						if (ScanEanWindow.this.isVisible()) {
-							listener.barcodeScanned(barcode);
-						}
-						PS2BarcodeScanner.getInstance().removeBarcodeListener();
-					}
-				});
 	}
 
 	@Override
@@ -69,5 +61,23 @@ public class ScanEanWindow extends Window {
 	@Override
 	protected void onClick(TerminalPosition position) {
 		centerLayout.onClick(position);
+	}
+
+	@Override
+	public void onVisible() {
+		PS2BarcodeScanner.getInstance().setBarcodeListener(
+				new PS2BarcodeScanner.BarcodeListener() {
+					@Override
+					public void barcodeScanned(long barcode) {
+						if (ScanEanWindow.this.isVisible()) {
+							listener.barcodeScanned(barcode);
+						}
+					}
+				});
+	}
+
+	@Override
+	public void onInvisible() {
+		PS2BarcodeScanner.getInstance().removeBarcodeListener();
 	}
 }

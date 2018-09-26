@@ -20,8 +20,10 @@ import java.util.Locale;
 public class ScanCardWindow extends Window {
 
     private CenterLayout centerLayout;
+    private CardReader.CardReaderListener listener;
 
     public ScanCardWindow(final CardReader.CardReaderListener listener) {
+        this.listener = listener;
         centerLayout = new CenterLayout();
         setCentralComponent(centerLayout);
 
@@ -36,16 +38,6 @@ public class ScanCardWindow extends Window {
             }
         }));
 
-        CardReader.getInstance().setListener(new CardReader.CardReaderListener() {
-            @Override
-            public boolean onCardDetected(String cardnr, String uid) {
-                if (ScanCardWindow.this.isVisible()) {
-                    return listener.onCardDetected(cardnr, uid);
-                } else {
-                    return false;
-                }
-            }
-        });
     }
 
     @Override
@@ -66,5 +58,24 @@ public class ScanCardWindow extends Window {
     @Override
     protected void onClick(TerminalPosition position) {
         centerLayout.onClick(position);
+    }
+
+    @Override
+    public void onVisible() {
+        CardReader.getInstance().setListener(new CardReader.CardReaderListener() {
+            @Override
+            public boolean onCardDetected(String cardnr, String uid) {
+                if (ScanCardWindow.this.isVisible()) {
+                    return listener.onCardDetected(cardnr, uid);
+                } else {
+                    return false;
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onInvisible() {
+        CardReader.getInstance().disableListener();
     }
 }

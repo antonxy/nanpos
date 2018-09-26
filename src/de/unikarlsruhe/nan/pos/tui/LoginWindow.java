@@ -19,6 +19,7 @@ public class LoginWindow extends Window {
     private final LoginResultHandler resultHandler;
     private Button cancelButton = null;
     private boolean check_pin;
+    private NoteValidator.NoteListener noteListener;
 
     public LoginWindow(final LoginResultHandler resultHandler,
                        boolean withAsciiArt, String action, boolean cancelable,
@@ -43,44 +44,6 @@ public class LoginWindow extends Window {
             verticalLayout.addChild(messageLabel3);
         }
 
-        final NoteValidator noteValidator = NoteValidator.getInstance();
-        noteValidator.setListener(new NoteValidator.NoteListener() {
-            boolean wasSucc = false;
-            @Override
-            public boolean onNoteRead(int channel, int valueInEurCt) {
-                final ResultScreen suc = new ResultScreen("Valid "+ valueInEurCt/100 +" EUR note :)", true);
-                suc.setDoneCallback(new Runnable() {
-                    @Override
-                    public void run() {
-                        suc.close();
-                    }
-                });
-                getTui().openWindow(suc);
-                wasSucc = true;
-                return false;
-            }
-
-            @Override
-            public void onNoteCredited(int channel, int valueInEurCt) {
-
-            }
-
-            @Override
-            public void onNoteRejected() {
-                if (wasSucc){
-                    wasSucc = false;
-                    return;
-                }
-                final ResultScreen suc = new ResultScreen("Invalid note /o\\", false);
-                suc.setDoneCallback(new Runnable() {
-                    @Override
-                    public void run() {
-                        suc.close();
-                    }
-                });
-                getTui().openWindow(suc);
-            }
-        });
         final CardReader cardReader = CardReader.getInstance();
         cardReaderListener = new CardReader.CardReaderListener() {
             @Override
@@ -116,7 +79,45 @@ public class LoginWindow extends Window {
                 }
             }
         };
-        cardReader.setListener(cardReaderListener);
+
+        noteListener = new NoteValidator.NoteListener() {
+            boolean wasSucc = false;
+
+            @Override
+            public boolean onNoteRead(int channel, int valueInEurCt) {
+                final ResultScreen suc = new ResultScreen("Valid " + valueInEurCt / 100 + " EUR note :)", true);
+                suc.setDoneCallback(new Runnable() {
+                    @Override
+                    public void run() {
+                        suc.close();
+                    }
+                });
+                getTui().openWindow(suc);
+                wasSucc = true;
+                return false;
+            }
+
+            @Override
+            public void onNoteCredited(int channel, int valueInEurCt) {
+
+            }
+
+            @Override
+            public void onNoteRejected() {
+                if (wasSucc) {
+                    wasSucc = false;
+                    return;
+                }
+                final ResultScreen suc = new ResultScreen("Invalid note /o\\", false);
+                suc.setDoneCallback(new Runnable() {
+                    @Override
+                    public void run() {
+                        suc.close();
+                    }
+                });
+                getTui().openWindow(suc);
+            }
+        };
 
         if (cancelable) {
             cancelButton = new Button("Cancel", new Runnable() {
@@ -217,12 +218,6 @@ public class LoginWindow extends Window {
         getTui().openWindow(kbdWindow);
     }
 
-    @Override
-    public void close() {
-        CardReader.getInstance().disableListener();
-        super.close();
-    }
-
     public interface LoginResultHandler {
         public void handle(User user, LoginWindow caller, String detailMessage);
     }
@@ -230,5 +225,12 @@ public class LoginWindow extends Window {
     @Override
     public void onVisible() {
         CardReader.getInstance().setListener(cardReaderListener);
+        NoteValidator.getInstance().setListener(noteListener);
+    }
+
+    @Override
+    public void onInvisible() {
+        CardReader.getInstance().disableListener();
+        NoteValidator.getInstance().disableListener();
     }
 }

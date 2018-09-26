@@ -61,7 +61,6 @@ public class BuyWindow extends Window {
         horizontalLayout.addChild(new Button("Back", new Runnable() {
             @Override
             public void run() {
-                PS2BarcodeScanner.getInstance().removeBarcodeListener();
                 resultCallback.handle(null, true);
             }
         }));
@@ -126,48 +125,6 @@ public class BuyWindow extends Window {
 
         }
 
-        PS2BarcodeScanner.getInstance().setBarcodeListener(
-                new PS2BarcodeScanner.BarcodeListener() {
-                    @Override
-                    public void barcodeScanned(long barCode) {
-                        System.err.println("Scanned " + barCode);
-                        try {
-                            Product byEAN = Product.getByEAN(barCode);
-                            if (byEAN != null) {
-                                clickedProduct(byEAN);
-                            } else {
-                                resultCallback.handle("Unknown product", false);
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-        NoteValidator.getInstance().setListener(new NoteValidator.NoteListener() {
-            @Override
-            public boolean onNoteRead(int channel, int valueInEurCt) {
-                getTui().fireGenericInputEvent();
-                System.err.println("Read note");
-                return true;
-            }
-
-            @Override
-            public void onNoteCredited(int channel, int valueInEurCt) {
-                try {
-                    user.recharge(valueInEurCt);
-                    ResultScreen res = new ResultScreen("Revalued " + valueInEurCt / 100 + "€!", true);
-                    getTui().openWindow(res);
-                } catch (SQLException e) {
-                    ResultScreen res = new ResultScreen("SQL expetion!", false);
-                    getTui().openWindow(res);
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onNoteRejected() {
-            }
-        });
         new Thread(new Runnable() {
 
             @Override
@@ -177,8 +134,6 @@ public class BuyWindow extends Window {
                         if (getTui() != null
                                 && System.currentTimeMillis()
                                 - getTui().getLastInputTime() > TIMEOUT) {
-                            PS2BarcodeScanner.getInstance()
-                                    .removeBarcodeListener();
                             close();
                             return;
                         }
@@ -192,8 +147,6 @@ public class BuyWindow extends Window {
     }
 
     private void clickedProduct(Product product) {
-        NoteValidator.getInstance().disableListener();
-        PS2BarcodeScanner.getInstance().removeBarcodeListener();
         try {
             if (this.isVisible()) {
                 boolean success = false;
@@ -253,5 +206,57 @@ public class BuyWindow extends Window {
 
     public interface BuyWindowResultHandler {
         public void handle(String result, boolean success);
+    }
+
+    @Override
+    public void onVisible() {
+        PS2BarcodeScanner.getInstance().setBarcodeListener(
+                new PS2BarcodeScanner.BarcodeListener() {
+                    @Override
+                    public void barcodeScanned(long barCode) {
+                        System.err.println("Scanned " + barCode);
+                        try {
+                            Product byEAN = Product.getByEAN(barCode);
+                            if (byEAN != null) {
+                                clickedProduct(byEAN);
+                            } else {
+                                resultCallback.handle("Unknown product", false);
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        NoteValidator.getInstance().setListener(new NoteValidator.NoteListener() {
+            @Override
+            public boolean onNoteRead(int channel, int valueInEurCt) {
+                getTui().fireGenericInputEvent();
+                System.err.println("Read note");
+                return true;
+            }
+
+            @Override
+            public void onNoteCredited(int channel, int valueInEurCt) {
+                try {
+                    user.recharge(valueInEurCt);
+                    ResultScreen res = new ResultScreen("Revalued " + valueInEurCt / 100 + "€!", true);
+                    getTui().openWindow(res);
+                } catch (SQLException e) {
+                    ResultScreen res = new ResultScreen("SQL expetion!", false);
+                    getTui().openWindow(res);
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onNoteRejected() {
+            }
+        });
+    }
+
+    @Override
+    public void onInvisible() {
+        PS2BarcodeScanner.getInstance().removeBarcodeListener();
+        NoteValidator.getInstance().disableListener();
     }
 }
