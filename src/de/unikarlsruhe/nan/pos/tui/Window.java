@@ -56,7 +56,19 @@ public class Window extends Component {
         return tui1 != null && tui1.getTopWindow() == this;
     }
 
+    public void onOpen () {
+
+    }
+
     public void onVisible() {
+
+    }
+
+    public void onInvisible() {
+
+    }
+
+    public void onClose() {
 
     }
 }
