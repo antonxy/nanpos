@@ -57,17 +57,20 @@ public class NoteValidator {
 
     public void disableListener() {
         listener = null;
-        try {
-            listThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     public void setListener(NoteListener newListener) {
         if (this.listener != null) {
             throw new Error("Listener already registerd!");
         }
+        try {
+            if(listThread != null) {
+                listThread.join();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.err.println("Set noteValidator listener " + newListener.getClass());
         this.listener = newListener;
         listThread = new Thread(new Runnable() {
             @Override
@@ -122,7 +125,7 @@ public class NoteValidator {
                     e.printStackTrace();
                 }
             }
-        });
+        }, "NoteValidator for " + newListener.getClass());
         listThread.start();
     }
 
